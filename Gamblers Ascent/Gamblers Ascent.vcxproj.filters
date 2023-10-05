@@ -7,6 +7,9 @@
     <Filter Include="src">
       <UniqueIdentifier>{20a42d34-9281-4f62-9694-c8114ab8e92f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="textures">
+      <UniqueIdentifier>{065f0c73-079b-49a2-8417-853707509ed9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -32,6 +35,9 @@
     </ClCompile>
     <ClCompile Include="src\imgui_widgets.cpp">
       <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\textureLoader.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -59,5 +65,19 @@
     <ClInclude Include="src\imstb_truetype.h">
       <Filter>imgui</Filter>
     </ClInclude>
+    <ClInclude Include="src\textureLoader.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\stb_image.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\bread.png">
+      <Filter>textures</Filter>
+    </Image>
+    <Image Include="textures\bread.jpg">
+      <Filter>textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

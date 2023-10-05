@@ -158,6 +158,7 @@
     <ClCompile Include="src\imgui_tables.cpp" />
     <ClCompile Include="src\imgui_widgets.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\textureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\imconfig.h" />
@@ -168,6 +169,12 @@
     <ClInclude Include="src\imstb_rectpack.h" />
     <ClInclude Include="src\imstb_textedit.h" />
     <ClInclude Include="src\imstb_truetype.h" />
+    <ClInclude Include="src\stb_image.h" />
+    <ClInclude Include="src\textureLoader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="textures\bread.jpg" />
+    <Image Include="textures\bread.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
