@@ -1,83 +1,82 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="imgui">
-      <UniqueIdentifier>{275c91c0-6715-4ef3-b80e-5e6b12d3f835}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{20a42d34-9281-4f62-9694-c8114ab8e92f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="textures">
-      <UniqueIdentifier>{065f0c73-079b-49a2-8417-853707509ed9}</UniqueIdentifier>
+    <Filter Include="res">
+      <UniqueIdentifier>{28dd17ac-16c6-49d6-8048-d9f0b93e4fb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DLLs">
+      <UniqueIdentifier>{fac08fd9-4584-4b78-bd46-355d0c41a4d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DLLs\x64">
+      <UniqueIdentifier>{8d81164a-c276-4f3c-aef5-c18aa1560ca9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DLLs\x86">
+      <UniqueIdentifier>{1a5f7dee-f1c8-4838-94d0-1d9e947b59c7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\imgui.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="src\Asset_Manager.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="src\SDL_Handler.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\imgui_impl_dx11.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\imgui_impl_win32.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\imgui_tables.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\textureLoader.cpp">
+    <ClCompile Include="src\Spritesheet_Handler.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\imconfig.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imgui.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imgui_impl_dx11.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imgui_impl_win32.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imgui_internal.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imstb_rectpack.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imstb_textedit.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\imstb_truetype.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\textureLoader.h">
+    <ClInclude Include="src\Asset_Manager.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\stb_image.h">
+    <ClInclude Include="src\SDL_Handler.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Spritesheet_Handler.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="textures\bread.png">
-      <Filter>textures</Filter>
+    <Image Include="res\playerSpriteSheet.png">
+      <Filter>res</Filter>
     </Image>
-    <Image Include="textures\bread.jpg">
-      <Filter>textures</Filter>
-    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x86\optional\libtiff-5.dll">
+      <Filter>DLLs\x86</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x86\optional\libwebp-7.dll">
+      <Filter>DLLs\x86</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2-2.28.1\lib\x86\SDL2.dll">
+      <Filter>DLLs\x86</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x86\SDL2_image.dll">
+      <Filter>DLLs\x86</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x64\optional\libtiff-5.dll">
+      <Filter>DLLs\x64</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x64\optional\libwebp-7.dll">
+      <Filter>DLLs\x64</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2-2.28.1\lib\x64\SDL2.dll">
+      <Filter>DLLs\x64</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x64\SDL2_image.dll">
+      <Filter>DLLs\x64</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
