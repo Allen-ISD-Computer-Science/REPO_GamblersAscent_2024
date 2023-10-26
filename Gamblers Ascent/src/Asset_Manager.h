@@ -4,7 +4,7 @@
 class Asset_Manager {
 public:
 	//amount of assets
-	static const int AssetCount = 1;
+	static const int AssetCount = 2;
 
 	//array to store the assets
 	SDL_Texture* Assets[AssetCount]{};

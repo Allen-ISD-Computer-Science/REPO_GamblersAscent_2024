@@ -9,6 +9,9 @@ public:
 	int screenWidth;
 	int screenHeight;
 
+	// background movement
+	float backgroundSpeedX;
+	float backgroundSpeedY;
 	//looks for user input
 	SDL_Event event{};
 
@@ -34,7 +37,9 @@ public:
 	// renders the source rectangle of the texture to dest rectangle
 	void DrawRectangle(SDL_Rect srcrect, SDL_Rect destrect, SDL_Texture* text);
 
-	bool keyPress(int &playerState);
+	void keyPress(int &playerState, bool keyDown);
+
+
 
 private:
 	//window

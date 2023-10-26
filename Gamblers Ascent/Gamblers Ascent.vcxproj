@@ -151,14 +151,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Asset_Manager.cpp" />
+    <ClCompile Include="src\CollisionDetector.cpp" />
+    <ClCompile Include="src\KeyboardHandler.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Player.cpp" />
+    <ClCompile Include="src\Image_Render.cpp" />
     <ClCompile Include="src\SDL_Handler.cpp" />
     <ClCompile Include="src\Spritesheet_Handler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asset_Manager.h" />
-    <ClInclude Include="src\Player.h" />
+    <ClInclude Include="src\CollisionDetector.h" />
+    <ClInclude Include="src\Image_Render.h" />
+    <ClInclude Include="src\KeyboardHandler.h" />
     <ClInclude Include="src\SDL_Handler.h" />
     <ClInclude Include="src\Spritesheet_Handler.h" />
   </ItemGroup>
