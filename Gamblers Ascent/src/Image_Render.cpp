@@ -19,3 +19,8 @@ void Image_Render::render(SDL_Texture* texture, SDL_Rect srcrect, int imageX, in
 	m_handler.DrawRectangle(srcrect, destrect, m_texture);
 
 }
+// Renders using SDL_RenderCopyEx
+void Image_Render::render(SDL_Texture* texture, SDL_Rect srcrect, SDL_Rect destrect, double angle, SDL_Point* center, SDL_RendererFlip flip) {
+	m_texture = texture;
+	SDL_RenderCopyEx(m_handler.renderer, m_texture, &srcrect, &destrect, angle, NULL, flip);
+}

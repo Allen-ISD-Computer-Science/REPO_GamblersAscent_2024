@@ -26,6 +26,8 @@ public:
 	// keys states
 	bool E_key;
 
+
+
 private:
 
 	SDL_Handler m_handler;

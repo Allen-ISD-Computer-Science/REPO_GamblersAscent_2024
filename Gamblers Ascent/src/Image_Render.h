@@ -12,6 +12,8 @@ public:
 	//renders a tile object
 	void render(SDL_Texture* texture, SDL_Rect srcrect, int imageX, int imageY);
 
+	void render(SDL_Texture* texture, SDL_Rect srcrect, SDL_Rect destrect, double angle, SDL_Point* center, SDL_RendererFlip flip);
+
 private:
 	const int m_imageWidth;
 	const int m_imageHeight;
