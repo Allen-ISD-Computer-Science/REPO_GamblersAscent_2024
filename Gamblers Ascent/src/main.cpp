@@ -4,6 +4,9 @@
 #include "Spritesheet_Handler.h"
 #include "KeyboardHandler.h"
 #include <iostream>
+#include "Blackjack.h"
+#include "MouseHandler.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -13,11 +16,18 @@ int main(int argc, char* argv[])
 	// base path of the program
 	std::string basePath = (std::string)SDL_GetBasePath();
 
-	// filePath Array
-	static const int AssetCount = 2;
+
+	//filePath Array
+	static const int AssetCount = 7;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png"
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\Blackjack_Screen.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\cardSpriteSheet.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\chipSpriteSheet.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\DealerTurn.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\PlayerTurn.png"
+
 	};
 
 	// asset manager
@@ -26,6 +36,8 @@ int main(int argc, char* argv[])
 
 	// Spritesheet Handler
 	Spritesheet_Handler playerSpritesheet(256, 512, 4, 8); //width, height, rows, columns
+	Spritesheet_Handler cardSpritesheet(164, 826, 4, 14);
+	Spritesheet_Handler chipSpritesheet(170, 17, 10, 1);
 
 	// Screen variables
 	static int ScreenWidth = handler.screenWidth;
@@ -84,8 +96,8 @@ int main(int argc, char* argv[])
 			switch (handler.event.type) {
 			case (SDL_QUIT):
 				gameRunning = false;
+				goto quit;
 				break;
-
 			case (SDL_WINDOWEVENT):
 				if (handler.event.window.event == SDL_WINDOWEVENT_RESIZED)
 				{

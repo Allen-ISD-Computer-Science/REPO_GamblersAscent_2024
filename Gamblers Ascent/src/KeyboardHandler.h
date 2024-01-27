@@ -27,6 +27,8 @@ public:
 	bool E_key;
 	bool B_key;
 
+
+
 private:
 
 	SDL_Handler m_handler;

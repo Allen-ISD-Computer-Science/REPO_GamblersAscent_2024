@@ -103,6 +103,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(SolutionDir)\includes\SDL2-2.28.1\include;$(SolutionDir)\includes\SDL2_image-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -151,18 +152,30 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Asset_Manager.cpp" />
+    <ClCompile Include="src\Blackjack.cpp" />
+    <ClCompile Include="src\BlackjackAI.cpp" />
+    <ClCompile Include="src\Card.cpp" />
     <ClCompile Include="src\CollisionDetector.cpp" />
+    <ClCompile Include="src\Deck.cpp" />
+    <ClCompile Include="src\Hand.cpp" />
     <ClCompile Include="src\KeyboardHandler.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Image_Render.cpp" />
+    <ClCompile Include="src\MouseHandler.cpp" />
     <ClCompile Include="src\SDL_Handler.cpp" />
     <ClCompile Include="src\Spritesheet_Handler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Asset_Manager.h" />
+    <ClInclude Include="src\Blackjack.h" />
+    <ClInclude Include="src\BlackjackAI.h" />
+    <ClInclude Include="src\Card.h" />
     <ClInclude Include="src\CollisionDetector.h" />
+    <ClInclude Include="src\Deck.h" />
+    <ClInclude Include="src\Hand.h" />
     <ClInclude Include="src\Image_Render.h" />
     <ClInclude Include="src\KeyboardHandler.h" />
+    <ClInclude Include="src\MouseHandler.h" />
     <ClInclude Include="src\SDL_Handler.h" />
     <ClInclude Include="src\Spritesheet_Handler.h" />
   </ItemGroup>
