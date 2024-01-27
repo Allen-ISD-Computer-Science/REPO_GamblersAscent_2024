@@ -3,8 +3,11 @@
 #include "Image_Render.h"
 #include "Spritesheet_Handler.h"
 #include "KeyboardHandler.h"
-#include "CollisionDetector.h"
 #include <iostream>
+#include "Blackjack.h"
+#include "MouseHandler.h"
+
+
 int main(int argc, char* argv[])
 {
 	//creating a handler to manage all user input in the program
@@ -14,10 +17,16 @@ int main(int argc, char* argv[])
 	std::string basePath = (std::string)SDL_GetBasePath();
 
 	//filePath Array
-	static const int AssetCount = 2;
+	static const int AssetCount = 7;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png"
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\Blackjack_Screen.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\cardSpriteSheet.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\chipSpriteSheet.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\DealerTurn.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\PlayerTurn.png"
+
 	};
 
 	//asset manager
@@ -26,24 +35,29 @@ int main(int argc, char* argv[])
 
 	//Spritesheet Handler
 	Spritesheet_Handler playerSpritesheet(256, 512, 4, 8); //width, height, rows, columns
+	Spritesheet_Handler cardSpritesheet(164, 826, 4, 14);
+	Spritesheet_Handler chipSpritesheet(170, 17, 10, 1);
 
 	//creating the player object
 	const int playerWidth = playerSpritesheet.spriteWidth;
 	const int playerHeight = playerSpritesheet.spriteHeight;
+	Image_Render player(&handler, playerWidth, playerHeight);
 	int playerState = 1;
 	int playerDirection = 1;
 	float playerX = static_cast<float>(((handler.screenWidth) / 2) - (playerWidth / 2));
 	float playerY = static_cast<float>(((handler.screenHeight) / 2) - (playerHeight / 2));
-	int consecutiveFramesHeld = 0;
-
-	Image_Render player(&handler, playerWidth, playerHeight);
+	// General game variables
+	int consecutiveFramesHeld = 0; 
 	Image_Render background(&handler, 1280, 720);
-	KeyboardHandler keyboardHandler(&handler);
+	SDL_Rect backgroundRect = { 0, 0, 640, 360 };
+	Image_Render icons(&handler, 1280, 720);
+	int backgroundAsset = 1; 
+	KeyboardHandler keyboardHandler(&handler); 
+	MouseHandler mouseHandler(&handler);
+	Blackjack blackjack(&handler, &keyboardHandler, &Asset_Manager, &cardSpritesheet, &chipSpritesheet);
 	keyboardHandler.playerX = static_cast<float>(handler.screenWidth / 2) - (playerWidth / static_cast<float>(2));
 	keyboardHandler.playerY = static_cast<float>(handler.screenHeight / 2) - (playerHeight / static_cast<float>(2));
-	CollisionDetector collision(keyboardHandler);
-	collision.centerX = 130;
-	collision.centerY = 43;
+
 	//fps regulators
 	const int FPS = 30;
 	const int frameDelay = 1000 / FPS;
@@ -57,13 +71,13 @@ int main(int argc, char* argv[])
 
 		frameStart = SDL_GetTicks();
 
-		while (SDL_PollEvent(&handler.event)) {
+		if (SDL_PollEvent(&handler.event)) {
 			//checking what event is occuring
 			switch (handler.event.type) {
 			case (SDL_QUIT):
 				gameRunning = false;
+				goto quit;
 				break;
-
 			case (SDL_WINDOWEVENT):
 				if (handler.event.window.event == SDL_WINDOWEVENT_RESIZED)
 				{
@@ -79,55 +93,57 @@ int main(int argc, char* argv[])
 				keyboardHandler.updateKeyboardState();
 				break;
 			}
+			
+
 		}
-		handler.ClearRenderer();
-
-		SDL_Rect backgroundRect = { 0, 0, 1280, 720 };
-
-		//updating the background
-		keyboardHandler.updateBackground(playerDirection);
 		
-		if (keyboardHandler.backgroundSpeedX != 0 || keyboardHandler.backgroundSpeedY != 0) {
-			consecutiveFramesHeld++;
+
+		// Checking if the player is in a battle
+		if (keyboardHandler.blackjackBattle) {
+			blackjack.newGame();
+			blackjack.gameLoop();
+			goto quit;
 		}
 		else {
-			consecutiveFramesHeld = 0;
-		}
-
-		//rendering the player
-		if (((consecutiveFramesHeld != 0) && ((consecutiveFramesHeld % 9) == 0)) || (consecutiveFramesHeld == 3)) {
-			if (playerState < 4) {
-				playerState++;
+			//updating the background
+			keyboardHandler.updateBackground(playerDirection);
+			if (keyboardHandler.backgroundSpeedX != 0 || keyboardHandler.backgroundSpeedY != 0) {
+				consecutiveFramesHeld++;
 			}
 			else {
-				playerState = 1;
+				consecutiveFramesHeld = 0;
 			}
+			//rendering the player
+			if (((consecutiveFramesHeld != 0) && ((consecutiveFramesHeld % 9) == 0)) || (consecutiveFramesHeld == 3)) {
+				if (playerState < 4) {
+					playerState++;
+				}
+				else {
+					playerState = 1;
+				}
+			}
+			// clamping the background position
+			keyboardHandler.ClampBackgroundPosition();
+			// rendering the background
+			background.render(Asset_Manager.Assets[backgroundAsset], backgroundRect, keyboardHandler.backgroundX, keyboardHandler.backgroundY);
+			// rendering the player
+			player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), playerX, playerY);
+
+
 		}
-		
-		// clamping the background position
-		keyboardHandler.ClampBackgroundPosition();
 
-		// rendering the background
-		background.render(Asset_Manager.Assets[1], backgroundRect, keyboardHandler.backgroundX, keyboardHandler.backgroundY);
+		 
 
-		// rendering the player
-		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), playerX, playerY);
-
-
-		
+		//updating the renderer
 		frameTime = SDL_GetTicks() - frameStart;
-
-		if (frameDelay > frameTime) {
-			SDL_Delay(frameDelay - frameTime);
-		}
-
+		if (frameDelay > frameTime) { SDL_Delay(frameDelay - frameTime); }
 		//breaking out of the WaitEvent
-		if (!gameRunning) {
-			break;
-		}
+		if (!gameRunning) { break; }
 	}
-	//destroying assets
-	Asset_Manager.~Asset_Manager();
+	quit:
+		//destroying assets and quitting
+		Asset_Manager.~Asset_Manager();
+		return 0;
 
 	return 0;
 }

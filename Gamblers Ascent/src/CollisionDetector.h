@@ -74,6 +74,6 @@ public:
 
 private:
 	// Function that defines the section of the map the player is located in
-	int getSection();
+	int getSection() const;
 
 };

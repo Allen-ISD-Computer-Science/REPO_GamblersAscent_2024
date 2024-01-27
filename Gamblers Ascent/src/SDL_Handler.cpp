@@ -63,54 +63,6 @@ void SDL_Handler::DrawRectangle(SDL_Rect srcrect, SDL_Rect destrect, SDL_Texture
 //checks different keypresses and returns true if one is being pressed
 void SDL_Handler::keyPress(int &playerDirection, bool keyDown) {
 	std::cout << "Entered the keyPress function\n";
-	// checking the keyboards state and moving background based off WASD input and 
-	// moves in an Isometric style
-	
-/*
-	if (currentKeyStates[ SDL_SCANCODE_W ]) {
-		if (currentKeyStates[ SDL_SCANCODE_A ]) {
-			playerDirection = 7;
-			backgroundSpeedX = 5;
-			backgroundSpeedY = 5;
-		} 
-		else if (currentKeyStates[ SDL_SCANCODE_D ]) {
-			playerDirection = 8;
-			backgroundSpeedX = -5;
-			backgroundSpeedY = 5;
-		} else {
-			playerDirection = 4;
-			backgroundSpeedY = 5;
-		}
-		return true;
-	} 
 
 
-	else if (currentKeyStates[ SDL_SCANCODE_S ]) {
-		if (currentKeyStates[SDL_SCANCODE_A]) {
-			playerDirection = 6;
-			backgroundSpeedX = 5;
-			backgroundSpeedY = -5;
-		}
-		else if (currentKeyStates[SDL_SCANCODE_D]) {
-			playerDirection = 5;
-			backgroundSpeedX = -5;
-			backgroundSpeedY = -5;
-		}
-		else {
-			playerDirection = 1;
-			backgroundSpeedY = -5;
-		}
-		return true;
-	}
-	else if (currentKeyStates[ SDL_SCANCODE_A ]) {
-		playerDirection = 2;
-		backgroundSpeedX = 5;
-		return true;
-	}
-	else if (currentKeyStates[ SDL_SCANCODE_D ]) {
-		playerDirection = 3;
-		backgroundSpeedX -= 5;
-		return true;
-	}
-*/
 }

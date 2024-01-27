@@ -6,7 +6,7 @@
 KeyboardHandler::KeyboardHandler(SDL_Handler* handler)
 	:m_handler(*handler), backgroundSpeedX(0), backgroundSpeedY(0), playerSpeedX(0), playerSpeedY(0),
     up(false), down(false), left(false), right(false),
-    upRight(false), upLeft(false), downRight(false), downLeft(false), interact(false),
+    upRight(false), upLeft(false), downRight(false), downLeft(false), interact(false), blackjackBattle(false),
     screenCenterX(0), screenCenterY(0), playerCenteredX(true), playerCenteredY(true), mapCenterX(0), mapCenterY(0),
     backgroundX(-500.0f), backgroundY(-345.0f), playerX(0), playerY(0)
 {
@@ -29,7 +29,8 @@ void KeyboardHandler::updateKeyboardState()
 
     // Checking for interaction inputs
     interact = keyState[SDL_SCANCODE_E];
-
+    if (interact) { blackjackBattle = true;}
+    // blackjackBattle = (interact == true);
     // Check for diagonals
     upLeft = up && left;
     upRight = up && right;
@@ -39,7 +40,7 @@ void KeyboardHandler::updateKeyboardState()
 
 void KeyboardHandler::updateBackground(int& playerDirection)
 {
-    // checking the keyboards state and moving background based off WASD input and
+    // checking the keyboards state and moving background based off WASD input
     if (upLeft)
     {
 		playerDirection = 7;

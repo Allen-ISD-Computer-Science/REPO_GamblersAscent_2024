@@ -32,7 +32,7 @@ public:
 	float mapCenterY;
 
 	// Key direction
-	bool up, down, left, right, upRight, upLeft, downRight, downLeft, interact;
+	bool up, down, left, right, upRight, upLeft, downRight, downLeft, interact, blackjackBattle;
 	
 private:
 	SDL_Handler m_handler;
