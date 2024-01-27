@@ -1,65 +1,56 @@
 #pragma once
 #include "SDL_Handler.h"
 #include "SDL_Image.h"
-#include <string>
 
 class KeyboardHandler
 {
 public:
 
-	// background movement
-	float backgroundSpeedX;
-	float backgroundSpeedY;
-
-	// player movement
-	float playerSpeedX;
-	float playerSpeedY;
-
 	// background position
-	float backgroundX;
-	float backgroundY;
+	int BackgroundX;
+	int BackgroundY;
 
-	// player position
-	float playerX;
-	float playerY;
+	// background speed
+	int BackgroundSpeedX;
+	int BackgroundSpeedY;
 
-	// Center of screen
-	float screenCenterX;
-	float screenCenterY;
+	// true if the background cannot be moved further without going off the screen
+	bool RightLimitReached;
+	bool LeftLimitReached;
+	bool TopLimitReached;
+	bool BottomLimitReached;
 
-	// Center of the map. Used to determine which section of the map the player is in
-	float mapCenterX;
-	float mapCenterY;
+	// checks all the keys we use and is true if any are pressed
+	bool DirectionalKeyPressed;
 
-	// Key direction
-	bool up, down, left, right, upRight, upLeft, downRight, downLeft, interact;
-	
+	// keys states
+	bool E_key;
+
 private:
+
 	SDL_Handler m_handler;
-	const float maxX = 0.0f;
-	const float maxY = 0.0f;
-	const float minX = -640;
-	const float minY = -360;
-	bool playerCenteredX;
-	bool playerCenteredY;
+
+	// keys states
+	const Uint8* KeyStates;
+	bool W_key;
+	bool A_key;
+	bool S_key;
+	bool D_key;
 
 public:
+
 	// Constructor
 	KeyboardHandler(SDL_Handler* handler);
 
-	// Destructor
-	~KeyboardHandler();
+	void UpdateKeyStates();
+	void DirectionalKey(int& playerDirection);
 
-	// Run code based off of key presses
-	void updateKeyboardState();
-	// Updates background movement speed
-	void updateBackground(int& playerDirection);
-	// Fixes background and moves player
-	void ClampBackgroundPosition();
-	
-
+	void CheckBackgroundLimits();
 private:
 
-	bool inRange(unsigned low, unsigned high, unsigned x);
+	//determines if players moving in more than 1 direction then adjusts the speeds so they correctly align with the path
+	void CalculateCustomDiagonals(int& playerDirection);
 
+	//sets BackgroundX and BackgroundY to 0, is called after every render of the background in main
+	void ResetBackgroundSpeed();
 };
