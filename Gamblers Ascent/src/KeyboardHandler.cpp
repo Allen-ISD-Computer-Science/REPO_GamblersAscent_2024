@@ -4,13 +4,13 @@
 
 KeyboardHandler::KeyboardHandler(SDL_Handler* handler)
 	:m_handler(*handler),
-	KeyStates(SDL_GetKeyboardState(NULL)), AnyKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false),
+	KeyStates(SDL_GetKeyboardState(NULL)), DirectionalKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false), E_key(false),
 	BackgroundSpeedX(0), BackgroundSpeedY(0), BackgroundX(-500), BackgroundY(-345),
 	RightLimitReached(false),  LeftLimitReached(false), TopLimitReached(false), BottomLimitReached(false)
 {
 }
 
-void KeyboardHandler::KeyPressed(int& playerDirection)
+void KeyboardHandler::DirectionalKey(int& playerDirection)
 {
 	if (W_key){
 		playerDirection = 4;
@@ -44,8 +44,9 @@ void KeyboardHandler::UpdateKeyStates()
 	A_key = KeyStates[SDL_SCANCODE_A];
 	S_key = KeyStates[SDL_SCANCODE_S];
 	D_key = KeyStates[SDL_SCANCODE_D];
+	E_key = KeyStates[SDL_SCANCODE_E];
 
-	AnyKeyPressed = W_key || A_key || S_key || D_key;
+	DirectionalKeyPressed = W_key || A_key || S_key || D_key;
 }
 
 void KeyboardHandler::CalculateCustomDiagonals(int& playerDirection)

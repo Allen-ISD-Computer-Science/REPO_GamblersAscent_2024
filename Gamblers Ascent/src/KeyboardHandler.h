@@ -14,14 +14,17 @@ public:
 	int BackgroundSpeedX;
 	int BackgroundSpeedY;
 
-	//true if the background cannot be moved further without going off the screen
+	// true if the background cannot be moved further without going off the screen
 	bool RightLimitReached;
 	bool LeftLimitReached;
 	bool TopLimitReached;
 	bool BottomLimitReached;
 
-	//checks all the keys we use and is true if any are pressed
-	bool AnyKeyPressed;
+	// checks all the keys we use and is true if any are pressed
+	bool DirectionalKeyPressed;
+
+	// keys states
+	bool E_key;
 
 private:
 
@@ -40,7 +43,7 @@ public:
 	KeyboardHandler(SDL_Handler* handler);
 
 	void UpdateKeyStates();
-	void KeyPressed(int& playerDirection);
+	void DirectionalKey(int& playerDirection);
 
 	void CheckBackgroundLimits();
 private:
