@@ -307,7 +307,7 @@ void Blackjack::turnCalculation(Player* player, Player* dealer) {
 // The AI's Player and Dealer Phases. The dealer will always hit until they have 17 or higher. The player will hit until they stand, double down, or bust.
 void Blackjack::playerPhase(Player* player, Player* dealer)
 {
-	if (botWait < 30) {
+	if (botWait < 60) {
 		botWait++;
 		return;
 	}
@@ -378,7 +378,7 @@ void Blackjack::playerPhase(Player* player, Player* dealer)
 
 void Blackjack::dealerPhase(Player* player, Player* dealer)
 {
-	if (botWait < 30) {
+	if (botWait < 60) {
 		botWait++;
 		return;
 	}

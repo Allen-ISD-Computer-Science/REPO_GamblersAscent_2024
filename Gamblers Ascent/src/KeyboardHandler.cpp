@@ -5,7 +5,7 @@
 KeyboardHandler::KeyboardHandler(SDL_Handler* handler)
 
 	:m_handler(*handler),
-	KeyStates(SDL_GetKeyboardState(NULL)), DirectionalKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false), E_key(false),
+	KeyStates(SDL_GetKeyboardState(NULL)), DirectionalKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false), E_key(false), B_key(false),
 	BackgroundSpeedX(0), BackgroundSpeedY(0), BackgroundX(-500), BackgroundY(-345),
 	RightLimitReached(false),  LeftLimitReached(false), TopLimitReached(false), BottomLimitReached(false)
 {
