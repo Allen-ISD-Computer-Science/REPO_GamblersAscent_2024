@@ -62,11 +62,6 @@ int main(int argc, char* argv[])
 		int x = 550;
 		int y = 500;
 	} PotGuyCoordinates;
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
 
 	int consecutiveFramesHeld = 0;
 
@@ -105,10 +100,10 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-<<<<<<< Updated upstream
-=======
+
+
 		//updating the background
->>>>>>> Stashed changes
+
 		handler.ClearRenderer();
 
 		// dealing with keyboard inputs
@@ -210,7 +205,7 @@ int main(int argc, char* argv[])
 		// rendering the player
 		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
 
-<<<<<<< Updated upstream
+
 		// reseting the speed
 		keyboardHandler.BackgroundSpeedX = 0;
 		keyboardHandler.BackgroundSpeedY = 0;
@@ -228,14 +223,14 @@ int main(int argc, char* argv[])
 		if (!gameRunning) {
 			break;
 		}
-=======
+
 
 		//updating the renderer
 		frameTime = SDL_GetTicks() - frameStart;
 		if (frameDelay > frameTime) { SDL_Delay(frameDelay - frameTime); }
 		//breaking out of the WaitEvent
 		if (!gameRunning) { break; }
->>>>>>> Stashed changes
+
 	}
 	// destroying assets
 	Asset_Manager.~Asset_Manager();
@@ -243,9 +238,8 @@ int main(int argc, char* argv[])
 quit:
 	Asset_Manager.~Asset_Manager();
 	return 0;
-<<<<<<< Updated upstream
-}
-=======
+
 }
 
->>>>>>> Stashed changes
+
+
