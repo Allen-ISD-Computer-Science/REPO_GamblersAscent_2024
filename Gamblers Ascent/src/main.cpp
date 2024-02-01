@@ -4,6 +4,9 @@
 #include "Spritesheet_Handler.h"
 #include "KeyboardHandler.h"
 #include <iostream>
+#include "Blackjack.h"
+#include "MouseHandler.h"
+
 
 int main(int argc, char* argv[])
 {
@@ -13,11 +16,18 @@ int main(int argc, char* argv[])
 	// base path of the program
 	std::string basePath = (std::string)SDL_GetBasePath();
 
-	// filePath Array
-	static const int AssetCount = 2;
+
+	//filePath Array
+	static const int AssetCount = 7;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png"
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\Blackjack_Screen.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\cardSpriteSheet.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\chipSpriteSheet.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\DealerTurn.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\PlayerTurn.png"
+
 	};
 
 	// asset manager
@@ -26,6 +36,8 @@ int main(int argc, char* argv[])
 
 	// Spritesheet Handler
 	Spritesheet_Handler playerSpritesheet(256, 512, 4, 8); //width, height, rows, columns
+	Spritesheet_Handler cardSpritesheet(164, 826, 4, 14);
+	Spritesheet_Handler chipSpritesheet(170, 17, 10, 1);
 
 	// Screen variables
 	static int ScreenWidth = handler.screenWidth;
@@ -38,7 +50,7 @@ int main(int argc, char* argv[])
 	int playerDirection = 1;
 
 	// different coordinates of the player
-	struct{
+	struct {
 		int ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
 		int ScreenY = (ScreenWidth / 2) - (playerHeight / 2);
 		int TrueX = 820;
@@ -57,8 +69,12 @@ int main(int argc, char* argv[])
 	Image_Render background(&handler, ScreenWidth * 2, ScreenHeight * 2);
 	KeyboardHandler keyboardHandler(&handler);
 
+	// blackjack variables
+	Image_Render icons(&handler, 1280, 720);
+	Blackjack blackjack(&handler, &keyboardHandler, &Asset_Manager, &cardSpritesheet, &chipSpritesheet);
+
 	// fps regulators
-	const int FPS = 60;
+	const int FPS = 30;
 	const int frameDelay = 1000 / FPS;
 
 	Uint32 frameStart{};
@@ -75,8 +91,8 @@ int main(int argc, char* argv[])
 			switch (handler.event.type) {
 			case (SDL_QUIT):
 				gameRunning = false;
+				goto quit;
 				break;
-
 			case (SDL_WINDOWEVENT):
 				if (handler.event.window.event == SDL_WINDOWEVENT_RESIZED)
 				{
@@ -84,6 +100,10 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
+
+
+		//updating the background
+
 		handler.ClearRenderer();
 
 		// dealing with keyboard inputs
@@ -91,12 +111,15 @@ int main(int argc, char* argv[])
 
 		if (keyboardHandler.E_key)
 		{
-			if (PotGuyCoordinates.x - 50 < PlayerCoordinates.TrueX && 
-				PotGuyCoordinates.x + 50 > PlayerCoordinates.TrueX && 
+			if (PotGuyCoordinates.x - 50 < PlayerCoordinates.TrueX &&
+				PotGuyCoordinates.x + 50 > PlayerCoordinates.TrueX &&
 				PotGuyCoordinates.y - 50 < PlayerCoordinates.TrueY &&
 				PotGuyCoordinates.y + 50 > PlayerCoordinates.TrueY)
 			{
-				std::cout << "npc interacted with\n";
+				std::cout << "npc interacted with, blackjack game started.\n";
+				blackjack.newGame();
+				blackjack.gameLoop();
+				goto quit;
 			}
 		}
 
@@ -104,9 +127,9 @@ int main(int argc, char* argv[])
 		{
 			keyboardHandler.DirectionalKey(playerDirection);
 		}
-		
+
 		// rendering the background
-		SDL_Rect backgroundRect = {0, 0, ScreenWidth * 2, ScreenHeight * 2};
+		SDL_Rect backgroundRect = { 0, 0, ScreenWidth * 2, ScreenHeight * 2 };
 
 		// checking to move either background or player
 		keyboardHandler.CheckBackgroundLimits();
@@ -175,6 +198,13 @@ int main(int argc, char* argv[])
 				playerState = 1;
 			}
 		}
+		// reseting the speed
+		keyboardHandler.BackgroundSpeedX = 0;
+		keyboardHandler.BackgroundSpeedY = 0;
+
+		// rendering the player
+		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
+
 
 		// reseting the speed
 		keyboardHandler.BackgroundSpeedX = 0;
@@ -193,9 +223,23 @@ int main(int argc, char* argv[])
 		if (!gameRunning) {
 			break;
 		}
+
+
+		//updating the renderer
+		frameTime = SDL_GetTicks() - frameStart;
+		if (frameDelay > frameTime) { SDL_Delay(frameDelay - frameTime); }
+		//breaking out of the WaitEvent
+		if (!gameRunning) { break; }
+
 	}
 	// destroying assets
 	Asset_Manager.~Asset_Manager();
-
 	return 0;
+quit:
+	Asset_Manager.~Asset_Manager();
+	return 0;
+
 }
+
+
+
