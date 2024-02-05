@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 	int playerDirection = 1;
 
 	// different coordinates of the player
-	struct{
+	struct {
 		int ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
 		int ScreenY = (ScreenWidth / 2) - (playerHeight / 2);
 		int TrueX = 820;
@@ -62,10 +62,6 @@ int main(int argc, char* argv[])
 		int x = 550;
 		int y = 500;
 	} PotGuyCoordinates;
-  
-  // blackjack variables
-  Image_Render icons(&handler, 1280, 720);
-	Blackjack blackjack(&handler, &keyboardHandler, &Asset_Manager, &cardSpritesheet, &chipSpritesheet);
 
 	int consecutiveFramesHeld = 0;
 
@@ -73,8 +69,12 @@ int main(int argc, char* argv[])
 	Image_Render background(&handler, ScreenWidth * 2, ScreenHeight * 2);
 	KeyboardHandler keyboardHandler(&handler);
 
+	// blackjack variables
+	Image_Render icons(&handler, 1280, 720);
+	Blackjack blackjack(&handler, &keyboardHandler, &Asset_Manager, &cardSpritesheet, &chipSpritesheet);
+
 	// fps regulators
-	const int FPS = 60;
+	const int FPS = 30;
 	const int frameDelay = 1000 / FPS;
 
 	Uint32 frameStart{};
@@ -100,20 +100,10 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-		
 
-		// Checking if the player is in a battle
-		if (keyboardHandler.blackjackBattle) {
-			blackjack.newGame();
-			blackjack.gameLoop();
-			goto quit;
-		}
-		else {
-			//updating the background
-			keyboardHandler.updateBackground(playerDirection);
-			if (keyboardHandler.backgroundSpeedX != 0 || keyboardHandler.backgroundSpeedY != 0) {
-				consecutiveFramesHeld++;
-		
+
+		//updating the background
+
 		handler.ClearRenderer();
 
 		// dealing with keyboard inputs
@@ -121,12 +111,15 @@ int main(int argc, char* argv[])
 
 		if (keyboardHandler.E_key)
 		{
-			if (PotGuyCoordinates.x - 50 < PlayerCoordinates.TrueX && 
-				PotGuyCoordinates.x + 50 > PlayerCoordinates.TrueX && 
+			if (PotGuyCoordinates.x - 50 < PlayerCoordinates.TrueX &&
+				PotGuyCoordinates.x + 50 > PlayerCoordinates.TrueX &&
 				PotGuyCoordinates.y - 50 < PlayerCoordinates.TrueY &&
 				PotGuyCoordinates.y + 50 > PlayerCoordinates.TrueY)
 			{
-				std::cout << "npc interacted with\n";
+				std::cout << "npc interacted with, blackjack game started.\n";
+				blackjack.newGame();
+				blackjack.gameLoop();
+				goto quit;
 			}
 		}
 
@@ -134,9 +127,9 @@ int main(int argc, char* argv[])
 		{
 			keyboardHandler.DirectionalKey(playerDirection);
 		}
-		
+
 		// rendering the background
-		SDL_Rect backgroundRect = {0, 0, ScreenWidth * 2, ScreenHeight * 2};
+		SDL_Rect backgroundRect = { 0, 0, ScreenWidth * 2, ScreenHeight * 2 };
 
 		// checking to move either background or player
 		keyboardHandler.CheckBackgroundLimits();
@@ -202,35 +195,16 @@ int main(int argc, char* argv[])
 				playerState++;
 			}
 			else {
-				consecutiveFramesHeld = 0;
+				playerState = 1;
 			}
-			//rendering the player
-			if (((consecutiveFramesHeld != 0) && ((consecutiveFramesHeld % 9) == 0)) || (consecutiveFramesHeld == 3)) {
-				if (playerState < 4) {
-					playerState++;
-				}
-				else {
-					playerState = 1;
-				}
-			}
-			// clamping the background position
-			keyboardHandler.ClampBackgroundPosition();
-			// rendering the background
-			background.render(Asset_Manager.Assets[backgroundAsset], backgroundRect, keyboardHandler.backgroundX, keyboardHandler.backgroundY);
-			// rendering the player
-			player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), playerX, playerY);
-
-
 		}
+		// reseting the speed
+		keyboardHandler.BackgroundSpeedX = 0;
+		keyboardHandler.BackgroundSpeedY = 0;
 
-		 
+		// rendering the player
+		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
 
-		//updating the renderer
-		frameTime = SDL_GetTicks() - frameStart;
-		if (frameDelay > frameTime) { SDL_Delay(frameDelay - frameTime); }
-		//breaking out of the WaitEvent
-		if (!gameRunning) { break; }
-	}
 
 		// reseting the speed
 		keyboardHandler.BackgroundSpeedX = 0;
@@ -238,7 +212,7 @@ int main(int argc, char* argv[])
 
 		// rendering the player
 		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
-    }
+
 		frameTime = SDL_GetTicks() - frameStart;
 
 		if (frameDelay > frameTime) {
@@ -249,9 +223,23 @@ int main(int argc, char* argv[])
 		if (!gameRunning) {
 			break;
 		}
+
+
+		//updating the renderer
+		frameTime = SDL_GetTicks() - frameStart;
+		if (frameDelay > frameTime) { SDL_Delay(frameDelay - frameTime); }
+		//breaking out of the WaitEvent
+		if (!gameRunning) { break; }
+
 	}
 	// destroying assets
 	Asset_Manager.~Asset_Manager();
-
 	return 0;
+quit:
+	Asset_Manager.~Asset_Manager();
+	return 0;
+
 }
+
+
+

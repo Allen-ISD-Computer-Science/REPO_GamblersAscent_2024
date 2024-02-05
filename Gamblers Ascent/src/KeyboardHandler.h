@@ -25,6 +25,7 @@ public:
 
 	// keys states
 	bool E_key;
+	bool B_key;
 
 
 
