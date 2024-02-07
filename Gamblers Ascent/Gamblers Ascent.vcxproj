@@ -180,7 +180,19 @@
     <ClInclude Include="src\Spritesheet_Handler.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\background.jpg" />
+    <Image Include="res\Blackjack_Screen.png" />
+    <Image Include="res\cardSpriteSheet.png" />
+    <Image Include="res\chipSpriteSheet.png" />
+    <Image Include="res\DealerTurn.png" />
+    <Image Include="res\dialoguebox2.png" />
+    <Image Include="res\elevator ui.png" />
+    <Image Include="res\finalfloor00.png" />
+    <Image Include="res\floor 001.png" />
+    <Image Include="res\pause screen.png" />
     <Image Include="res\playerSpriteSheet.png" />
+    <Image Include="res\PlayerTurn.png" />
+    <Image Include="res\spritesheet.png" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\includes\SDL2-2.28.1\lib\x64\SDL2.dll">
@@ -239,6 +251,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Game_Screen.psd" />
+    <None Include="res\spritesheet.psd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

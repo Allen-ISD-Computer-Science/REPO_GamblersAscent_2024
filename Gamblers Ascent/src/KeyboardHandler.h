@@ -2,6 +2,7 @@
 #include "SDL_Handler.h"
 #include "SDL_Image.h"
 
+
 class KeyboardHandler
 {
 public:
@@ -25,9 +26,6 @@ public:
 
 	// keys states
 	bool E_key;
-	bool B_key;
-
-
 
 private:
 
@@ -47,6 +45,11 @@ public:
 
 	void UpdateKeyStates();
 	void DirectionalKey(int& playerDirection);
+	void UpdatePlayerAnimation(int& consecutiveFramesHeld, int& playerState);
+	void HandleEdgeCaseDirections(int& playerDirection);
+
+	void MoveBackgroundX(int& ScreenX, int& TrueX, int& ScreenWidth, int playerWidth);
+	void MoveBackgroundY(int& ScreenY, int& TrueY, int& ScreenHeight, int playerHeight);
 
 	void CheckBackgroundLimits();
 private:

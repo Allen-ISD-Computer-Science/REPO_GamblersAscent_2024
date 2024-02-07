@@ -1,8 +1,6 @@
 #include "Blackjack.h"
 
 
-
-
 Blackjack::Blackjack(SDL_Handler* handler, KeyboardHandler* keyboardHandler, Asset_Manager* Asset_Manager, Spritesheet_Handler* cardSpritesheet, Spritesheet_Handler* chipSpritesheet) : userTurn(true), betPhase(false), turnCount(0), 
 	cardX(0), chipX(0), chipY(0), dealerChipX(0), dealerChipY(0), chipSrcRect({0,0, 0, 0}), isRunning(true), frameStart(0), frameTime(0), botWait(0),
 	m_handler(handler), m_keyboardHandler(keyboardHandler), m_Asset_Manager(Asset_Manager), m_cardSpritesheet(cardSpritesheet), m_chipSpritesheet(chipSpritesheet) {
@@ -22,8 +20,8 @@ Blackjack::~Blackjack() {
 void Blackjack::newGame() {
 
 	// Defines the two players and their starting cash
-	Player *m_player1 = new Player(false, 1500);
-	Player *m_player2 = new Player(true, 1500);
+	Player *m_player1 = new Player("Will", false, 1500);
+	Player *m_player2 = new Player("Tinman", true, 1500);
 	player1 = *m_player1;
 	player2 = *m_player2;
 	// Shuffles and merges the two decks
@@ -42,8 +40,8 @@ void Blackjack::newTurn() {
 	player1.hand.addCard(deck1.dealCard());
 	player2.hand.addCard(deck1.dealCard());
 	// Displays the balance of both players
-	std::cout << "Player 1 balance: " << player1.money << std::endl;
-	std::cout << "Player 2 balance: " << player2.money << std::endl;
+	std::cout << player1.name << " balance: " << player1.money << std::endl;
+	std::cout << player2.name << " balance: " << player2.money << std::endl;
 	betPhase = true;
 	userTurn = (player1.isDealer) ? false : true;
 }
@@ -103,9 +101,8 @@ void Blackjack::render() {
 	// rendering the background
 	blackjackScreen->render(m_Asset_Manager->Assets[2], backgroundRect, 0, 0);
 
-
 	// Rendering the Dealer's hand
-	// 
+
 	// Render each card in the player's hand
 	renderCardsNChips(&player1, &player2);
 
@@ -252,12 +249,8 @@ void Blackjack::endGame() {
 }
 void Blackjack::endRound(Player* winner, Player* loser) {
 	// Adds the bet amount to the winner's money and resets the bet amount
-	if (!winner->isDealer) {
-		std::cout << "Player won " << winner->betAmount << std::endl;
-	}
-	else {
-		std::cout << "Dealer won " << winner->betAmount << std::endl;
-	}
+
+	std::cout << winner->name << " won " << winner->betAmount << std::endl;
 	if (winner->hand.isBlackjack() || winner->hand.cardsInHand() >= 5)
 		winner->money += winner->betAmount*2.5;
 	else 
@@ -327,13 +320,13 @@ void Blackjack::playerPhase(Player* player, Player* dealer)
 				dealer->money -= player->betAmount;
 				moneyToChip(dealer);
 			}
-			std::cout << "Player Bot bet: " << player->betAmount << std::endl;
+			std::cout << player->name <<" bet: " << player->betAmount << std::endl;
 			betPhase = false;
 		}
 		else {
 			if (player->hand.cardsInHand() == 2 && (player->hand.handValue() >= 9 && player->hand.handValue() <= 11)) {
 				// Double down
-				std::cout << "Player Bot doubled down" << std::endl;
+				std::cout << player->name << " doubled down" << std::endl;
 				player->hand.addCard(deck1.dealCard()); 
 				player->betAmount *= 2;   
 				player->money -= player->betAmount;  
@@ -360,7 +353,7 @@ void Blackjack::playerPhase(Player* player, Player* dealer)
 				// Split
 			}
 			if (player->hand.handValue() < 17) {
-				std::cout << "Player Bot hit" << std::endl;
+				std::cout << player->name << " hit" << std::endl;
 				player->hand.addCard(deck1.dealCard());
 				if (player->hand.isBust())
 					endRound(dealer, player);
@@ -368,7 +361,7 @@ void Blackjack::playerPhase(Player* player, Player* dealer)
 					endRound(player, dealer);
 			}
 			else {
-				std::cout << "Player Bot stood" << std::endl;
+				std::cout << player->name << " stood" << std::endl;
 				endTurn();
 			}
 		}
@@ -386,11 +379,11 @@ void Blackjack::dealerPhase(Player* player, Player* dealer)
 		botWait = 0;
 
 		if (dealer->hand.handValue() < 17) {
-			std::cout << "Dealer Bot hit" << std::endl;
+			std::cout << dealer->name << " Bot hit" << std::endl;
 			dealer->hand.addCard(deck1.dealCard());
 		}
 		else {
-			std::cout << "Dealer Bot stood" << std::endl;
+			std::cout << dealer->name << " Bot stood" << std::endl;
 			turnCalculation(player, dealer);
 		}
 	}

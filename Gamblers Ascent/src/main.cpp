@@ -6,7 +6,7 @@
 #include <iostream>
 #include "Blackjack.h"
 #include "MouseHandler.h"
-
+#include "CollisionDetector.h"
 
 int main(int argc, char* argv[])
 {
@@ -62,6 +62,9 @@ int main(int argc, char* argv[])
 		int x = 550;
 		int y = 500;
 	} PotGuyCoordinates;
+
+	// Collision variables
+	CollisionDetector collisionDetector(playerWidth, playerHeight);
 
 	int consecutiveFramesHeld = 0;
 
@@ -134,47 +137,18 @@ int main(int argc, char* argv[])
 		// checking to move either background or player
 		keyboardHandler.CheckBackgroundLimits();
 
+		// dealing with collision checks
+		if (collisionDetector.isColliding(PlayerCoordinates.TrueX, PlayerCoordinates.TrueY, 0))
+		{
+			keyboardHandler.BackgroundSpeedX = 0;
+			keyboardHandler.BackgroundSpeedY = 0;
+		}
 		// X axis movement
-		if ((!(keyboardHandler.LeftLimitReached || keyboardHandler.RightLimitReached)) && (PlayerCoordinates.ScreenX == (ScreenWidth / 2) - (playerWidth / 2)))
-		{
-			keyboardHandler.BackgroundX += keyboardHandler.BackgroundSpeedX;
-			PlayerCoordinates.TrueX -= keyboardHandler.BackgroundSpeedX;
-		}
-		else {
-			PlayerCoordinates.ScreenX -= keyboardHandler.BackgroundSpeedX;
-			PlayerCoordinates.TrueX -= keyboardHandler.BackgroundSpeedX;
-		}
-
-		// recentering X axis if it gets off
-		if ((keyboardHandler.BackgroundX < -(ScreenWidth / 2)) && (PlayerCoordinates.ScreenX < (ScreenWidth / 2) - (playerWidth / 2)))
-		{
-			PlayerCoordinates.ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
-			std::cout << "recentered\n";
-		}
-		else if ((keyboardHandler.BackgroundX > -(ScreenWidth / 2)) && (PlayerCoordinates.ScreenX > (ScreenWidth / 2) - (playerWidth / 2))) {
-			PlayerCoordinates.ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
-			std::cout << "recentered\n";
-		}
+		keyboardHandler.MoveBackgroundX(PlayerCoordinates.ScreenX, PlayerCoordinates.TrueX, ScreenWidth, playerWidth);
 
 		// Y axis movement
-		if ((!(keyboardHandler.TopLimitReached || keyboardHandler.BottomLimitReached)) && (PlayerCoordinates.ScreenY == (ScreenHeight / 2) - (playerHeight / 2)))
-		{
-			keyboardHandler.BackgroundY += keyboardHandler.BackgroundSpeedY;
-			PlayerCoordinates.TrueY += keyboardHandler.BackgroundSpeedY;
-		}
-		else {
-			PlayerCoordinates.ScreenY -= keyboardHandler.BackgroundSpeedY;
-			PlayerCoordinates.TrueY += keyboardHandler.BackgroundSpeedY;
-		}
+		keyboardHandler.MoveBackgroundY(PlayerCoordinates.ScreenY, PlayerCoordinates.TrueY, ScreenHeight, playerHeight);
 
-		// recentering Y axis if it gets off
-		if ((keyboardHandler.BackgroundY < -(ScreenHeight / 2)) && (PlayerCoordinates.ScreenY < (ScreenHeight / 2) - (playerHeight / 2)))
-		{
-			PlayerCoordinates.ScreenY = (ScreenHeight / 2) - (playerHeight / 2);
-		}
-		else if ((keyboardHandler.BackgroundY > -(ScreenHeight / 2)) && (PlayerCoordinates.ScreenY > (ScreenHeight / 2) - (playerHeight / 2))) {
-			PlayerCoordinates.ScreenY = (ScreenHeight / 2) - (playerHeight / 2);
-		}
 
 		background.render(Asset_Manager.Assets[1], backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
 
@@ -182,22 +156,9 @@ int main(int argc, char* argv[])
 		//std::cout << "(" << PlayerCoordinates.TrueX << "," << PlayerCoordinates.TrueY << ")\n";
 
 		// dealing with the players animations
-		if (keyboardHandler.BackgroundSpeedX != 0 || keyboardHandler.BackgroundSpeedY != 0) {
-			consecutiveFramesHeld++;
-		}
-		else {
-			consecutiveFramesHeld = 0;
-			playerState = 1;
-		}
+		keyboardHandler.UpdatePlayerAnimation(consecutiveFramesHeld, playerState);
+		keyboardHandler.HandleEdgeCaseDirections(playerDirection);
 
-		if (((consecutiveFramesHeld != 0) && ((consecutiveFramesHeld % 9) == 0)) || (consecutiveFramesHeld == 3)) {
-			if (playerState < 4) {
-				playerState++;
-			}
-			else {
-				playerState = 1;
-			}
-		}
 		// reseting the speed
 		keyboardHandler.BackgroundSpeedX = 0;
 		keyboardHandler.BackgroundSpeedY = 0;

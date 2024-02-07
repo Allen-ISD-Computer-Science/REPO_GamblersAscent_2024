@@ -1,43 +1,52 @@
-//#include "CollisionDetector.h"
+#include "CollisionDetector.h"
+#include <iostream>
 
-//CollisionDetector::CollisionDetector(KeyboardHandler keyH)
-	//: centerX(0.0f), centerY(0.0f), keyH(keyH)
-//{
-//}
+CollisionDetector::CollisionDetector()
+{
+}
+CollisionDetector::CollisionDetector(int defaultPlayerWidth, int defaultPlayerHeight) : defaultPlayerWidth(defaultPlayerWidth), defaultPlayerHeight(defaultPlayerHeight)
+{
+}
+bool CollisionDetector::isColliding(SDL_Rect player, int floor) const
+{
+	player.x /= 2;
+	player.y /= 2;
+	// Iterates throught the array of floor boundaries to determine if the player has collided with the floor using SDL_HasIntersection.
+	for (int i = 0; i < sizeof(floorBoundaries[floor]) / sizeof(floorBoundaries[floor][0]); i++)
+	{
+		if (SDL_HasIntersection(&player, &floorBoundaries[floor][i]))
+		{
+			return true;
+		}
+	}
+	return false;
+}
 
-//CollisionDetector::~CollisionDetector()
-//{
-//}
+bool CollisionDetector::isColliding(int x, int y, int floor) const
+{
+	x /= 2;
+	y /= 2; 
+	// Iterates throught the array of floor boundaries to determine if the player has collided with the floor using SDL_HasIntersection.
+	SDL_Rect player = { x, y, defaultPlayerWidth, defaultPlayerHeight };
+	for (int i = 0; i < sizeof(floorBoundaries[floor]) / sizeof(floorBoundaries[floor][0]); i++)
+	{
+		if (SDL_HasIntersection(&player, &floorBoundaries[floor][i]))
+		{
+//			std::cout << "collision detected\n";
+			return true;
+		}
+//		std::cout << "no collision detected, location: " << x << ", " << y << "\n";
+	}
+	return false;
+	return false;
+}
 
-//bool CollisionDetector::checkCollision(SDL_Rect* rect1, int section)
-//{
-	// check if the player is colliding with any of the SDL_Rects in the vector matrix based on one of the 4 sections of the map the player is in
+bool CollisionDetector::isColliding(SDL_Rect player, SDL_Rect* intersection) const
+{
+	return false;
+}
 
-	//for (int i = 0; i < objectBoundaries[section][i].x1; i++) {
-		//if (SDL_IntersectRectAndLine(rect1, &objectBoundaries[section][i].x1, &objectBoundaries[section][i].y1, &objectBoundaries[section][i].x2, &objectBoundaries[section][i].y2)) {
-			//return true;
-		//}
-	//}
-	//return false;
-//}
-
-//int CollisionDetector::getSection()
-//{
-
-	// Function that defines the section of the map the player is located in
-	//if (keyH.playerX < centerX && keyH.playerY < centerY) {
-		//return 1;
-	//}
-	//else if (keyH.playerX >= centerX && keyH.playerY < centerY) {
-		//return 2;
-	//}
-	//else if (keyH.playerX < centerX && keyH.playerY >= centerY) {
-		//return 3;
-	//}
-	//else if (keyH.playerX >= centerX && keyH.playerY >= centerY) {
-		//return 4;
-	//}
-	//else {
-		//return 0;
-	//}
-//}
+bool CollisionDetector::isColliding(SDL_Point* mouse) const
+{
+	return false;
+}
