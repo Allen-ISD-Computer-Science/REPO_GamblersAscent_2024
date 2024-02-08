@@ -47,6 +47,11 @@ public:
 
 	void UpdateKeyStates();
 	void DirectionalKey(int& playerDirection);
+	void UpdatePlayerAnimation(int& consecutiveFramesHeld, int& playerState);
+	void HandleEdgeCaseDirections(int& playerDirection);
+
+	void MoveBackgroundX(int& ScreenX, int& TrueX, int& ScreenWidth, int playerWidth);
+	void MoveBackgroundY(int& ScreenY, int& TrueY, int& ScreenHeight, int playerHeight);
 
 	void CheckBackgroundLimits();
 private:

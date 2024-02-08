@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 
 
 	//filePath Array
-	static const int AssetCount = 7;  //amount of assets
+	static const int AssetCount = 9;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png",
@@ -26,13 +26,21 @@ int main(int argc, char* argv[])
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\cardSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\chipSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\DealerTurn.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\PlayerTurn.png"
-
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\PlayerTurn.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\elevatorUI.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\floor 001.png"
 	};
 
 	// asset manager
 	Asset_Manager Asset_Manager(filePaths, handler.renderer);
 	Asset_Manager.LoadAssets();
+
+	//floors 
+	SDL_Texture* floorTextures[2] = {
+		Asset_Manager.Assets[1], //lobby
+		Asset_Manager.Assets[8] //floor 1
+	};
+	SDL_Texture* activeFloor = floorTextures[0];
 
 	// Spritesheet Handler
 	Spritesheet_Handler playerSpritesheet(256, 512, 4, 8); //width, height, rows, columns
@@ -63,18 +71,38 @@ int main(int argc, char* argv[])
 		int y = 500;
 	} PotGuyCoordinates;
 
+	// coordinates of the elevator
+	struct {
+		int x = 840;
+		int y = 415;
+	} ElevatorCoordinates;
+	bool elevatorScreenActive = false;
+	SDL_Rect elevatorUIRect = {230, 5, 185, 350};
+	SDL_Rect elevatorUIButtonsRects[6]{
+		{310, 305, 70, 25}, // lobby
+		{310, 250, 70, 25}, // floor 1
+		{310, 195, 70, 25}, // floor 2
+		{310, 140, 70, 25}, // floor 3
+		{310, 85, 70, 25}, // floor 4
+		{310, 30, 70, 25} // floor 5
+	};
 	int consecutiveFramesHeld = 0;
 
 	Image_Render player(&handler, playerWidth, playerHeight);
 	Image_Render background(&handler, ScreenWidth * 2, ScreenHeight * 2);
+	Image_Render elevatorUI(&handler, ScreenWidth, ScreenHeight);
+
 	KeyboardHandler keyboardHandler(&handler);
+	MouseHandler mouseHandler(&handler);
+	bool leftMouseClicked = false;
+	SDL_Point mousePosition;
 
 	// blackjack variables
 	Image_Render icons(&handler, 1280, 720);
 	Blackjack blackjack(&handler, &keyboardHandler, &Asset_Manager, &cardSpritesheet, &chipSpritesheet);
 
 	// fps regulators
-	const int FPS = 30;
+	const int FPS = 60;
 	const int frameDelay = 1000 / FPS;
 
 	Uint32 frameStart{};
@@ -97,6 +125,11 @@ int main(int argc, char* argv[])
 				if (handler.event.window.event == SDL_WINDOWEVENT_RESIZED)
 				{
 					handler.ResizeWindow(handler.event.window.data1, handler.event.window.data2);
+				}
+			case (SDL_MOUSEBUTTONDOWN):
+				if (handler.event.button.button == SDL_BUTTON_LEFT)
+				{
+					leftMouseClicked = true;
 				}
 			}
 		}
@@ -121,6 +154,13 @@ int main(int argc, char* argv[])
 				blackjack.gameLoop();
 				goto quit;
 			}
+			if (ElevatorCoordinates.x - 50 < PlayerCoordinates.TrueX &&
+				ElevatorCoordinates.x + 50 > PlayerCoordinates.TrueX &&
+				ElevatorCoordinates.y - 50 < PlayerCoordinates.TrueY &&
+				ElevatorCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			{
+				elevatorScreenActive = true;
+			}
 		}
 
 		if (keyboardHandler.DirectionalKeyPressed)
@@ -135,76 +175,19 @@ int main(int argc, char* argv[])
 		keyboardHandler.CheckBackgroundLimits();
 
 		// X axis movement
-		if ((!(keyboardHandler.LeftLimitReached || keyboardHandler.RightLimitReached)) && (PlayerCoordinates.ScreenX == (ScreenWidth / 2) - (playerWidth / 2)))
-		{
-			keyboardHandler.BackgroundX += keyboardHandler.BackgroundSpeedX;
-			PlayerCoordinates.TrueX -= keyboardHandler.BackgroundSpeedX;
-		}
-		else {
-			PlayerCoordinates.ScreenX -= keyboardHandler.BackgroundSpeedX;
-			PlayerCoordinates.TrueX -= keyboardHandler.BackgroundSpeedX;
-		}
-
-		// recentering X axis if it gets off
-		if ((keyboardHandler.BackgroundX < -(ScreenWidth / 2)) && (PlayerCoordinates.ScreenX < (ScreenWidth / 2) - (playerWidth / 2)))
-		{
-			PlayerCoordinates.ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
-			std::cout << "recentered\n";
-		}
-		else if ((keyboardHandler.BackgroundX > -(ScreenWidth / 2)) && (PlayerCoordinates.ScreenX > (ScreenWidth / 2) - (playerWidth / 2))) {
-			PlayerCoordinates.ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
-			std::cout << "recentered\n";
-		}
+		keyboardHandler.MoveBackgroundX(PlayerCoordinates.ScreenX, PlayerCoordinates.TrueX, ScreenWidth, playerWidth);
 
 		// Y axis movement
-		if ((!(keyboardHandler.TopLimitReached || keyboardHandler.BottomLimitReached)) && (PlayerCoordinates.ScreenY == (ScreenHeight / 2) - (playerHeight / 2)))
-		{
-			keyboardHandler.BackgroundY += keyboardHandler.BackgroundSpeedY;
-			PlayerCoordinates.TrueY += keyboardHandler.BackgroundSpeedY;
-		}
-		else {
-			PlayerCoordinates.ScreenY -= keyboardHandler.BackgroundSpeedY;
-			PlayerCoordinates.TrueY += keyboardHandler.BackgroundSpeedY;
-		}
+		keyboardHandler.MoveBackgroundY(PlayerCoordinates.ScreenY, PlayerCoordinates.TrueY, ScreenHeight, playerHeight);
 
-		// recentering Y axis if it gets off
-		if ((keyboardHandler.BackgroundY < -(ScreenHeight / 2)) && (PlayerCoordinates.ScreenY < (ScreenHeight / 2) - (playerHeight / 2)))
-		{
-			PlayerCoordinates.ScreenY = (ScreenHeight / 2) - (playerHeight / 2);
-		}
-		else if ((keyboardHandler.BackgroundY > -(ScreenHeight / 2)) && (PlayerCoordinates.ScreenY > (ScreenHeight / 2) - (playerHeight / 2))) {
-			PlayerCoordinates.ScreenY = (ScreenHeight / 2) - (playerHeight / 2);
-		}
-
-		background.render(Asset_Manager.Assets[1], backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
+		background.render(activeFloor, backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
 
 		// true coordinate debugging
 		//std::cout << "(" << PlayerCoordinates.TrueX << "," << PlayerCoordinates.TrueY << ")\n";
 
 		// dealing with the players animations
-		if (keyboardHandler.BackgroundSpeedX != 0 || keyboardHandler.BackgroundSpeedY != 0) {
-			consecutiveFramesHeld++;
-		}
-		else {
-			consecutiveFramesHeld = 0;
-			playerState = 1;
-		}
-
-		if (((consecutiveFramesHeld != 0) && ((consecutiveFramesHeld % 9) == 0)) || (consecutiveFramesHeld == 3)) {
-			if (playerState < 4) {
-				playerState++;
-			}
-			else {
-				playerState = 1;
-			}
-		}
-		// reseting the speed
-		keyboardHandler.BackgroundSpeedX = 0;
-		keyboardHandler.BackgroundSpeedY = 0;
-
-		// rendering the player
-		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
-
+		keyboardHandler.UpdatePlayerAnimation(consecutiveFramesHeld, playerState);
+		keyboardHandler.HandleEdgeCaseDirections(playerDirection);
 
 		// reseting the speed
 		keyboardHandler.BackgroundSpeedX = 0;
@@ -212,6 +195,32 @@ int main(int argc, char* argv[])
 
 		// rendering the player
 		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
+
+		//rendering the elevator UI
+		if (elevatorScreenActive)
+		{
+			elevatorUI.render(Asset_Manager.Assets[7], backgroundRect, 0, 0);
+			if (leftMouseClicked)
+			{
+				mousePosition = mouseHandler.getPosition();
+				if (!SDL_PointInRect(&mousePosition, &elevatorUIRect))
+				{
+					elevatorScreenActive = false;
+				}
+				else if (SDL_PointInRect(&mousePosition, &elevatorUIButtonsRects[0]))
+				{
+					activeFloor = floorTextures[0];
+					elevatorScreenActive = false;
+				}
+				else if (SDL_PointInRect(&mousePosition, &elevatorUIButtonsRects[1]))
+				{
+					activeFloor = floorTextures[1];
+					elevatorScreenActive = false;
+				}
+				std::cout << "Mouse position " << mousePosition.x << "," << mousePosition.y << "\n";
+				leftMouseClicked = false;
+			}
+		}
 
 		frameTime = SDL_GetTicks() - frameStart;
 
