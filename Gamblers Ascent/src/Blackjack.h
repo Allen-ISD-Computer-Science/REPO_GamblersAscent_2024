@@ -35,13 +35,15 @@ public:
 	Hand hand;
 	unsigned int money;
 	bool isDealer;
-	Player() : money(500), isDealer(false), betAmount(0), currentChips({}) {};
-	Player(bool isDealer, int initialMoney) : money(initialMoney), betAmount(0), isDealer(isDealer) {};
+	std::string name;
+	Player() : money(500), isDealer(false), betAmount(0), currentChips({}), name("No name") {};
+	Player(std::string name, bool isDealer, int initialMoney) : money(initialMoney), betAmount(0), isDealer(isDealer), name(name) {};
 	Player(int initialMoney) : money(initialMoney), isDealer(false), betAmount(0){};
 	// Bet placement
 	unsigned int betAmount;
 	std::vector<Chip> currentChips;
 	// Add more player attributes as needed
+
 };
 
 
@@ -136,10 +138,9 @@ public:
 	void gameLoop();
 	void playerPhase(Player* player, Player* dealer);
 	void dealerPhase(Player* player, Player* dealer);
-	void betPhaseUpdate();
 	void endTurn();
-	void endEarly(Player* p);
 	void endRound(Player* winner, Player* loser);
+	void endRound();
 	void endGame();
 	void render();
 	void renderCardsNChips(Player* player, Player* dealer);
@@ -151,8 +152,6 @@ public:
 	void doubleDown(Player* p);
 	void split(Player* p);
 	void turnCalculation(Player* player, Player* dealer);
-
-	friend std::istream& operator>>(std::istream& is, Action& response);
 	
 
 };

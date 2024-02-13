@@ -3,7 +3,7 @@
 #include <iostream>
 KeyboardHandler::KeyboardHandler(SDL_Handler* handler)
 	:m_handler(*handler),
-	KeyStates(SDL_GetKeyboardState(NULL)), DirectionalKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false), E_key(false),
+	KeyStates(SDL_GetKeyboardState(NULL)), DirectionalKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false), E_key(false), ESC_key(false),
 	BackgroundSpeedX(0), BackgroundSpeedY(0), BackgroundX(-500), BackgroundY(-345),
 	RightLimitReached(false), LeftLimitReached(false), TopLimitReached(false), BottomLimitReached(false)
 {
@@ -136,7 +136,7 @@ void KeyboardHandler::UpdateKeyStates()
 	S_key = KeyStates[SDL_SCANCODE_S];
 	D_key = KeyStates[SDL_SCANCODE_D];
 	E_key = KeyStates[SDL_SCANCODE_E];
-
+	ESC_key = KeyStates[SDL_SCANCODE_ESCAPE];
 	DirectionalKeyPressed = W_key || A_key || S_key || D_key;
 }
 

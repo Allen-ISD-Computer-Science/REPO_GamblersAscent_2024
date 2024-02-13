@@ -16,8 +16,8 @@ int Hand::handValue()
 	isSoft = false;
 	int numAces = 0;
 
-	for (const Card& card : cards) {
-		int cardValue = static_cast<int>(card.rank);
+	for (Card& card : cards) {
+		int cardValue = card.get_value();
 
 		if (card.rank == Card::rank_t::ace) {
 			numAces++;
@@ -26,13 +26,17 @@ int Hand::handValue()
 	}
 
 	// Check for aces and adjust their values if necessary
-	while (numAces > 0 && result + 10 <= 21) {
-		result += 10;
-		numAces--;
+	while (numAces > 0) {
+		if (result + 11 <= 21) {
+			result += 11;
+			numAces--;
+		}
+		else {
+			result += 1;
+			numAces--;
+			isSoft = true;
+		}
 	}
-
-	// Update "isSoft" status for the hand
-	isSoft = (numAces > 0);
 
 	return result;
 

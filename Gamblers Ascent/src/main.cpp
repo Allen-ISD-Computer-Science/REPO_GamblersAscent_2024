@@ -51,17 +51,17 @@ int main(int argc, char* argv[])
 
 	// different coordinates of the player
 	struct {
-		int ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
-		int ScreenY = (ScreenWidth / 2) - (playerHeight / 2);
-		int TrueX = 820;
-		int TrueY = 15;
+		SDL_Point ScreenCoordinates = { 
+			(ScreenWidth / 2) - (playerWidth / 2), 
+			(ScreenWidth / 2) - (playerHeight / 2)
+		};
+		SDL_Point TrueCoordinates = { 820, 15 };
+
 	} PlayerCoordinates;
 
 	// coordinates of pot guy to test npc interactions
-	struct {
-		int x = 550;
-		int y = 500;
-	} PotGuyCoordinates;
+	SDL_Point PotGuyCoordinates = {500, 500};
+
 
 	// Collision variables
 	CollisionDetector collisionDetector(playerWidth, playerHeight);
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 	Blackjack blackjack(&handler, &keyboardHandler, &Asset_Manager, &cardSpritesheet, &chipSpritesheet);
 
 	// fps regulators
-	const int FPS = 30;
+	const int FPS = 60;
 	const int frameDelay = 1000 / FPS;
 
 	Uint32 frameStart{};
@@ -114,15 +114,16 @@ int main(int argc, char* argv[])
 
 		if (keyboardHandler.E_key)
 		{
-			if (PotGuyCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				PotGuyCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				PotGuyCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				PotGuyCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			if (PotGuyCoordinates.x - 50 < PlayerCoordinates.TrueCoordinates.x &&
+				PotGuyCoordinates.x + 50 > PlayerCoordinates.TrueCoordinates.x &&
+				PotGuyCoordinates.y - 50 < PlayerCoordinates.TrueCoordinates.y &&
+				PotGuyCoordinates.y + 50 > PlayerCoordinates.TrueCoordinates.y)
 			{
 				std::cout << "npc interacted with, blackjack game started.\n";
 				blackjack.newGame();
+				blackjack.isRunning = true;
 				blackjack.gameLoop();
-				goto quit;
+				
 			}
 		}
 
@@ -138,16 +139,16 @@ int main(int argc, char* argv[])
 		keyboardHandler.CheckBackgroundLimits();
 
 		// dealing with collision checks
-		if (collisionDetector.isColliding(PlayerCoordinates.TrueX, PlayerCoordinates.TrueY, 0))
+		if (collisionDetector.isColliding(PlayerCoordinates.TrueCoordinates.x, PlayerCoordinates.TrueCoordinates.y, 0))
 		{
 			keyboardHandler.BackgroundSpeedX = 0;
 			keyboardHandler.BackgroundSpeedY = 0;
 		}
 		// X axis movement
-		keyboardHandler.MoveBackgroundX(PlayerCoordinates.ScreenX, PlayerCoordinates.TrueX, ScreenWidth, playerWidth);
+		keyboardHandler.MoveBackgroundX(PlayerCoordinates.ScreenCoordinates.x, PlayerCoordinates.TrueCoordinates.x, ScreenWidth, playerWidth);
 
 		// Y axis movement
-		keyboardHandler.MoveBackgroundY(PlayerCoordinates.ScreenY, PlayerCoordinates.TrueY, ScreenHeight, playerHeight);
+		keyboardHandler.MoveBackgroundY(PlayerCoordinates.ScreenCoordinates.y, PlayerCoordinates.TrueCoordinates.y, ScreenHeight, playerHeight);
 
 
 		background.render(Asset_Manager.Assets[1], backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
@@ -164,7 +165,7 @@ int main(int argc, char* argv[])
 		keyboardHandler.BackgroundSpeedY = 0;
 
 		// rendering the player
-		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
+		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenCoordinates.x, PlayerCoordinates.ScreenCoordinates.y);
 
 
 		// reseting the speed
@@ -172,7 +173,7 @@ int main(int argc, char* argv[])
 		keyboardHandler.BackgroundSpeedY = 0;
 
 		// rendering the player
-		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
+		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenCoordinates.x, PlayerCoordinates.ScreenCoordinates.y);
 
 		frameTime = SDL_GetTicks() - frameStart;
 
