@@ -37,6 +37,7 @@ public:
 	// Methods
 	auto get_value() -> unsigned;
 	auto to_string(suit_t s) -> std::string;
+	
 	// Operator Functions
 	bool operator<(const Card& c) const
 	{

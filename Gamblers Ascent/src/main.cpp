@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
 
 		//updating the background
 
-		handler.ClearRenderer();
+
 
 		// dealing with keyboard inputs
 		keyboardHandler.UpdateKeyStates();
@@ -150,6 +150,7 @@ int main(int argc, char* argv[])
 		// Y axis movement
 		keyboardHandler.MoveBackgroundY(PlayerCoordinates.ScreenCoordinates.y, PlayerCoordinates.TrueCoordinates.y, ScreenHeight, playerHeight);
 
+		handler.ClearRenderer();
 
 		background.render(Asset_Manager.Assets[1], backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
 

@@ -16,6 +16,10 @@
 #include "KeyboardHandler.h"
 #include "Asset_Manager.h"
 #include "Spritesheet_Handler.h"
+#include "BlackjackAI.h"
+// Forward declaration of classes
+class BlackjackAI;
+
 
 enum class Chip : int {
 	Chip_1 = 1,
@@ -30,6 +34,10 @@ enum class Chip : int {
 	Chip_1000 = 1000,
 	// Add more chip values as needed
 };
+
+
+
+
 class Player {
 public:
 	Hand hand;
@@ -47,21 +55,15 @@ public:
 };
 
 
-enum class Action : char {
-	Hit = 'H',
-	Stand = 'S',
-	Double = 'D',
-	Split = 'C',
-	Insurance = 'I',
-	// Add more actions as needed
-};
 
 class Blackjack {
 public:
-	
+
 	Blackjack(SDL_Handler* handler, KeyboardHandler* keyboardHandler, Asset_Manager* Asset_Manager, Spritesheet_Handler* cardSpritesheet, Spritesheet_Handler* chipSpritesheet);
 	~Blackjack();
-	Deck deck1, deck2;
+// 	Deck playerDeck1, playerDeck2;
+	Deck botDeck, botDeck2;
+	Deck playerDeck, playerDeck2;
 	bool userTurn;
 
 	bool isRunning;
@@ -100,13 +102,16 @@ public:
 	const int dealerStartX = 397; // Adjust this value as needed
 	const int dealerCardY = 47; // Adjust this value as needed
 
+
+	// Tinman's AI
+	BlackjackAI* botAI;
 	SDL_Handler* m_handler;
 	KeyboardHandler* m_keyboardHandler;
 	Asset_Manager* m_Asset_Manager;
 	Spritesheet_Handler* m_cardSpritesheet;
 	Spritesheet_Handler* m_chipSpritesheet;
 	SDL_Rect cardSrcRect;
-	Player player1, player2;
+	Player player, bot;
 	Image_Render* blackjackScreen;
 	Image_Render* cards;
 	Image_Render* chips;

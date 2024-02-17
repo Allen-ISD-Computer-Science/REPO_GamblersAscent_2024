@@ -14,6 +14,6 @@ private:
 	SDL_Point m_position;
 
 	int buttonCount;
-	SDL_Rect* m_buttons[];
+	SDL_Rect* m_buttons[1];
 	
 };

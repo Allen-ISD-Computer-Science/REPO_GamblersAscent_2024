@@ -10,6 +10,7 @@ Blackjack::Blackjack(SDL_Handler* handler, KeyboardHandler* keyboardHandler, Ass
 	chips = new Image_Render(m_handler, 17, 17);
 	blackjackScreen = new Image_Render(m_handler, 640, 360);
 	icons = new Image_Render(m_handler, 32, 32);
+	botAI = new BlackjackAI(5, 5, 5, 10);
 };
 Blackjack::~Blackjack() {
 	delete cards;
@@ -23,12 +24,15 @@ void Blackjack::newGame() {
 	// Defines the two players and their starting cash
 	Player *m_player1 = new Player("Will", false, 1500);
 	Player *m_player2 = new Player("Tinman", true, 1500);
-	player1 = *m_player1;
-	player2 = *m_player2;
-	// Shuffles and merges the two decks
-	deck1.shuffle(); deck2.shuffle();
-	deck1.mergeDecks(deck2);
+	player = *m_player1;
+	bot = *m_player2;
+	// Shuffles and merges the two player decks
+	playerDeck.shuffle(); playerDeck2.shuffle();
+	playerDeck.mergeDecks(playerDeck2);
 	
+	// Shuffles and merges the two bot decks
+	botDeck.shuffle(); botDeck2.shuffle();
+	botDeck.mergeDecks(botDeck2);
 
 	// Starts the bet phase
 	betPhase = true;
@@ -36,21 +40,21 @@ void Blackjack::newGame() {
 void Blackjack::newTurn() {
 	// Resets the player's bet amount and deals them two cards
 	std::cout << "New turn, dealing cards" << std::endl;
-	player1.hand.addCard(deck1.dealCard());
-	player2.hand.addCard(deck1.dealCard());
-	player1.hand.addCard(deck1.dealCard());
-	player2.hand.addCard(deck1.dealCard());
+	player.hand.addCard(playerDeck.dealCard());
+	bot.hand.addCard(botDeck.dealCard());
+	player.hand.addCard(playerDeck.dealCard());
+	bot.hand.addCard(botDeck.dealCard());
 	// Displays the balance of both players
-	std::cout << player1.name << " balance: " << player1.money << std::endl;
-	std::cout << player2.name << " balance: " << player2.money << std::endl;
+	std::cout << player.name << " balance: " << player.money + player.betAmount << std::endl;
+	std::cout << bot.name << " balance: " << bot.money + player.betAmount << std::endl;
 
 	// Checks for early blackjacks
-	if (player1.hand.isBlackjack()) {
-		endRound(&player1, &player2);
+	if (player.hand.isBlackjack()) {
+		endRound(&player, &bot);
 	}
 
 	// If the player is the dealer, they will start the game after the bot
-	userTurn = (player1.isDealer) ? false : true;
+	userTurn = (player.isDealer) ? false : true;
 }
 // The main game loop. Runs 30 frames a second, so checks like the player's hand status shouldn't be done here unless updated with sdl events
 void Blackjack::gameLoop() {
@@ -58,11 +62,11 @@ void Blackjack::gameLoop() {
 		frameStart = SDL_GetTicks();
 
 		// Game logic
-		if (!userTurn && player2.isDealer) {
-			dealerPhase(&player1, &player2);
+		if (!userTurn && bot.isDealer) {
+			dealerPhase(&player, &bot);
 		}
-		else if (!userTurn && !player2.isDealer) {
-			playerPhase(&player2, &player1);
+		else if (!userTurn && !bot.isDealer) {
+			playerPhase(&bot, &player);
 		}
 		// Checks for events
 		if (SDL_PollEvent(&m_handler->event)) {
@@ -112,10 +116,10 @@ void Blackjack::render() {
 
 
 	// Render each card in the player and dealer's hand
-	renderCardsNChips(&player1, &player2);
+	renderCardsNChips(&player, &bot);
 
 	// Renders the player/dealer icon
-	if (player1.isDealer) 
+	if (player.isDealer) 
 		icons->render(m_Asset_Manager->Assets[5], { 0, 0, 32, 32 }, 40, 46);
 	else 
 		icons->render(m_Asset_Manager->Assets[6], { 0, 0, 32, 32 }, 40, 46);
@@ -177,7 +181,7 @@ void Blackjack::renderCardsNChips(Player* player, Player* dealer) {
 			int dealerCardX = dealerStartX - (i * (m_cardSpritesheet->spriteWidth + cardSpacing));
 			SDL_Point centerPoint = { dealerCardX, dealerCardY };
 			// Use Spritesheet_Handler to get the SDL_Rect for the current card's image
-			if (i == 1 && userTurn && player2.isDealer ) {
+			if (i == 1 && userTurn && bot.isDealer ) {
 				cardSrcRect = m_cardSpritesheet->getSprite(1, 14);
 			}
 			else {
@@ -227,15 +231,15 @@ void Blackjack::renderCardsNChips(Player* player, Player* dealer) {
 void Blackjack::cardUpdate() {
 	cardSrcRects.clear();
 	cardX = startX;
-	for (size_t i = 0; i < player1.hand.cards.size(); i++)
+	for (size_t i = 0; i < player.hand.cards.size(); i++)
 	{
 		// Calculate the position for the current card
 		cardX = startX + (i * (static_cast<unsigned long long>(m_cardSpritesheet->spriteWidth) + cardSpacing));
 
 		// Use Spritesheet_Handler to get the SDL_Rect for the current card's image
 		cardSrcRects.push_back(m_cardSpritesheet->getSprite(
-			static_cast<int>(player1.hand.cards[i].suit),
-			static_cast<int>(player1.hand.cards[i].rank)
+			static_cast<int>(player.hand.cards[i].suit),
+			static_cast<int>(player.hand.cards[i].rank)
 		));
 	}
 }
@@ -258,8 +262,8 @@ void Blackjack::endTurn()
 
 void Blackjack::endGame() {
 	// Deletes the player objects and resets the game
-	delete &player1;
-	delete &player2;
+	delete &player;
+	delete &bot;
 	
 }
 
@@ -279,21 +283,28 @@ void Blackjack::endRound(Player* winner, Player* loser) {
 	winner->betAmount = 0, loser->betAmount = 0;
 
 	winner->isDealer = !winner->isDealer; loser->isDealer = !loser->isDealer;
-	userTurn = (player1.isDealer) ? false : true;
+	userTurn = (player.isDealer) ? false : true;
 	betPhase = true;
 }
 
 void Blackjack::endRound() {
 	// If the player and dealer have the same hand value, the player gets their bet back
-	player1.money += player1.betAmount;
-	player2.money += player2.betAmount;
-	player1.betAmount = 0;
-	player2.betAmount = 0;
-	player1.currentChips.clear();
-	player2.currentChips.clear();
+	player.money += player.betAmount;
+	bot.money += bot.betAmount;
+	player.betAmount = 0;
+	bot.betAmount = 0;
+	player.currentChips.clear();
+	bot.currentChips.clear();
 	render();
 	SDL_Delay(3000);
-	userTurn = (player1.isDealer) ? false : true;
+
+	// Swaps player and dealer, and starts the next bet phase
+	player.hand.cards.clear(); bot.hand.cards.clear();
+	player.currentChips.clear(); bot.currentChips.clear();
+	player.betAmount = 0, bot.betAmount = 0;
+	player.isDealer = !player.isDealer; bot.isDealer = !bot.isDealer;
+
+	userTurn = (player.isDealer) ? false : true;
 	betPhase = true;
 }
 void Blackjack::moneyToChip(Player* p) const {
@@ -328,7 +339,7 @@ void Blackjack::turnCalculation(Player* player, Player* dealer) {
 	}
 }
 
-// The AI's Player and Dealer Phases. The dealer will always hit until they have 17 or higher. The player will hit until they stand, double down, or bust.
+// The AI's Player and Dealer Phases. Powered by BlackjackAI
 void Blackjack::playerPhase(Player* player, Player* dealer)
 {
 	if (botWait < 60) {
@@ -338,7 +349,7 @@ void Blackjack::playerPhase(Player* player, Player* dealer)
 	else {
 		botWait = 0;
 		if (betPhase) {
-			player->betAmount += player->money/5 ;
+			player->betAmount += botAI->determineBet(player->money);
 			player->money -= player->betAmount;			
 			moneyToChip(player);
 			if (player->betAmount > dealer->money) {
@@ -356,12 +367,31 @@ void Blackjack::playerPhase(Player* player, Player* dealer)
 			newTurn();
 		}
 		else {
-			if (player->hand.cardsInHand() == 2 && (player->hand.handValue() >= 9 && player->hand.handValue() <= 11)) {
-				// Double down
+			switch (botAI->determineAction(player->hand, dealer->hand.cards[0])) 
+			{
+			case Hit:
+				std::cout << player->name << " hit" << std::endl;
+				if (botAI->determineLuck() && (player->hand.handValue() + static_cast<int>(botDeck.peekTop().get_value())) < 21) {
+					// Guarentees the bot a card that will bring them to 20
+					int neededValue = 20 - player->hand.handValue();
+					Card tempCard(Card::suit_t::spades, static_cast<Card::rank_t>(neededValue));
+					botDeck.replaceTop(tempCard);
+				}
+				player->hand.addCard(botDeck.dealCard());
+				if (player->hand.isBust())
+					endRound(dealer, player);
+				else if (player->hand.isBlackjack())
+					endRound(player, dealer);
+				break;
+			case Stand:
+				std::cout << player->name << " stood" << std::endl;
+				endTurn();
+				break;
+			case Double:
 				std::cout << player->name << " doubled down" << std::endl;
-				player->hand.addCard(deck1.dealCard()); 
-				player->betAmount *= 2;   
-				player->money -= player->betAmount;  
+				player->hand.addCard(botDeck.dealCard());
+				player->betAmount *= 2;
+				player->money -= player->betAmount;
 				if (player->betAmount > dealer->money) {
 					dealer->betAmount = dealer->money;
 					dealer->money -= dealer->betAmount;
@@ -372,33 +402,20 @@ void Blackjack::playerPhase(Player* player, Player* dealer)
 					dealer->money -= player->betAmount;
 					moneyToChip(dealer);
 				}
-				moneyToChip(player); 
+				moneyToChip(player);
 				if (player->hand.isBust())
 					endRound(dealer, player);
 				else if (player->hand.isBlackjack())
 					endRound(player, dealer);
 				else
 					endTurn();
-
-			}
-			else if (player->hand.cardsInHand() == 2 && player->hand.cards[0].rank == player->hand.cards[1].rank) {
-				// Split
-			}
-			if (player->hand.handValue() < 17) {
-				std::cout << player->name << " hit" << std::endl;
-				player->hand.addCard(deck1.dealCard());
-				if (player->hand.isBust())
-					endRound(dealer, player);
-				else if (player->hand.isBlackjack())
-					endRound(player, dealer);
-			}
-			else {
-				std::cout << player->name << " stood" << std::endl;
-				endTurn();
+				break;
+			case Split:
+				// WIP
+				break;
 			}
 		}
 	}
-	
 }
 
 void Blackjack::dealerPhase(Player* player, Player* dealer)
@@ -409,17 +426,26 @@ void Blackjack::dealerPhase(Player* player, Player* dealer)
 	}
 	else {
 		botWait = 0;
-
-		if (dealer->hand.handValue() < 17 || dealer->hand.handValue() < player->hand.handValue()) {
+		switch (botAI->determineAction(dealer->hand, player->hand))
+		{
+		case Hit:
+			if (botAI->determineLuck() && (player->hand.handValue() + static_cast<int>(botDeck.peekTop().get_value())) < 21) { 
+				// Guarentees the bot a card that will bring them to 20 
+				int neededValue = 20 - player->hand.handValue(); 
+				Card tempCard(Card::suit_t::spades, static_cast<Card::rank_t>(neededValue)); 
+				botDeck.replaceTop(tempCard); 
+			} 
 			std::cout << dealer->name << " Bot hit" << std::endl;
-			dealer->hand.addCard(deck1.dealCard());
-		}
-		else if (dealer->hand.isBust()){
-			std::cout << dealer->name << " busts!" << std::endl;
-			endRound(player, dealer);
-		} else {
+			dealer->hand.addCard(botDeck.dealCard());
+			if (dealer->hand.isBust())
+				endRound(player, dealer);
+			else if (dealer->hand.isBlackjack())
+				endRound(dealer, player);
+			break;
+		case Stand:
 			std::cout << dealer->name << " Bot stood" << std::endl;
 			turnCalculation(player, dealer);
+			break;		
 		}
 	}
 }
@@ -432,29 +458,29 @@ void Blackjack::mouseClick(SDL_Point pos)
 			WIP
 		*/
 	}
-
+	
 	else {
 		for (int i = 0; i < sizeof(buttonRects) / sizeof(buttonRects[0]); i++) {
 			if (SDL_PointInRect(&pos, &buttonRects[i]) && !betPhase) {
 				switch (i) {
 				case 0:
 					// Hit
-					hit(&player1);
+					hit(&player);
 
 					break;
 				case 1:
 					// Stand
-					if (!player1.isDealer) {
+					if (!player.isDealer) {
 						endTurn();
-					}
+					} 
 					else {
-						turnCalculation(&player1, &player2);
+						turnCalculation(&player, &bot);
 					}
 					break;
 				case 2:
 					// Double
-					if (!player1.isDealer) { 
-						doubleDown(&player1); 
+					if (!player.isDealer) { 
+						doubleDown(&player); 
 					}
 					break;
 				case 3:
@@ -470,38 +496,38 @@ void Blackjack::mouseClick(SDL_Point pos)
 				case 1:
 				case 2:
 				case 3:
-					// Starts the gameg
+					// Starts the game
 					betPhase = false;
 					newTurn();
 					break;
 				case 14:
 					// Removes topmost chip from bet
-					if (player1.currentChips.size() == 0) { break; }
+					if (player.currentChips.size() == 0) { break; }
 
-					player1.money += static_cast<int>(player1.currentChips.back());
-					player1.betAmount -= static_cast<int>(player1.currentChips.back());
+					player.money += static_cast<int>(player.currentChips.back());
+					player.betAmount -= static_cast<int>(player.currentChips.back());
 
 					// Repeats for Bot
-					player2.money += static_cast<int>(player1.currentChips.back());
-					player2.betAmount -= static_cast<int>(player1.currentChips.back());
-					moneyToChip(&player2);
+					bot.money += static_cast<int>(player.currentChips.back());
+					bot.betAmount -= static_cast<int>(player.currentChips.back());
+					moneyToChip(&bot);
 
-					player1.currentChips.pop_back();
+					player.currentChips.pop_back();
 
 					break;
 				default:
 					// Adds the chip value to the player's bet if they can afford it
-					if (static_cast<int>(chipValues[i - 4]) > player1.money) { break; }
-					chipInput(chipValues[i - 4], &player1);
-					if (player1.betAmount > player2.money + player2.betAmount) {
-						player2.betAmount = player2.money;
-						player2.money = 0;
-						moneyToChip(&player2);
+					if (static_cast<int>(chipValues[i - 4]) > player.money) { break; }
+					chipInput(chipValues[i - 4], &player);
+					if (player.betAmount > bot.money + bot.betAmount) {
+						bot.betAmount = bot.money;
+						bot.money = 0;
+						moneyToChip(&bot);
 					}
 					else {
-						player2.betAmount += static_cast<int>(player1.currentChips.back());
-						player2.money -= static_cast<int>(player1.currentChips.back());
-						moneyToChip(&player2);
+						bot.betAmount += static_cast<int>(player.currentChips.back());
+						bot.money -= static_cast<int>(player.currentChips.back());
+						moneyToChip(&bot);
 					}
 					break;
 				}
@@ -511,23 +537,23 @@ void Blackjack::mouseClick(SDL_Point pos)
 }
 // Hit, stand, doubledown, and split functions
 void Blackjack::hit(Player* p) {
-	Player* p2 = p == &player1 ? &player2 : &player1;
-	p->hand.addCard(deck1.dealCard());
+	Player* p2 = p == &player ? &bot : &player;
+	p->hand.addCard(playerDeck.dealCard());
 	if (p->hand.isBust())
 		endRound(p2, p);
-	else if (player1.hand.isBlackjack())
+	else if (player.hand.isBlackjack())
 		endRound(p, p2); 
 }
 
 void Blackjack::doubleDown(Player* p) {
-	Player* p2 = p == &player1 ? &player2 : &player1;
-	p->hand.addCard(deck1.dealCard());
+	Player* p2 = p == &player ? &bot : &player;
+	p->hand.addCard(playerDeck.dealCard());
 	p->betAmount *= 2;
 	p->money -= p->betAmount;
 	moneyToChip(p);
 	if (p->hand.isBust())
 		endRound(p2, p);
-	else if (player1.hand.isBlackjack())
+	else if (player.hand.isBlackjack())
 		endRound(p, p2);
 	else
 		endTurn();

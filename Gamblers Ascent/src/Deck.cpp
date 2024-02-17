@@ -11,7 +11,6 @@ Deck::Deck()
 		{
 			cards.push_back(Card(static_cast<Card::suit_t>(s), static_cast<Card::rank_t>(r)));
 			i++;
-			std::cout << "added " << i << " cards \n";
 		}
 	}
 }
@@ -20,17 +19,35 @@ void Deck::shuffle()
 {
 	std::shuffle(cards.begin(), cards.end(), gen);
 }
+void Deck::reshuffle()
+{
+	cards.insert(cards.end(), discardPile.begin(), discardPile.end()); 
+	discardPile.clear(); 
+	shuffle(); 
+}
 Card Deck::peekTop()
 {
 	return cards.front();
 }
+void Deck::replaceTop(Card c)
+{
+	Card topCard = cards.front(); 
+	cards.erase(cards.begin()); 
+	discardPile.push_back(topCard); 
+	cards.insert(cards.begin(), c);
+}
 Card Deck::dealCard()
 {
+	if (cards.size() == 0)
+	{
+		reshuffle(); 
+	}
 	Card topCard = cards.front();
 	cards.erase(cards.begin());
+	discardPile.push_back(topCard); 
 	return topCard;
 }
-int Deck::cardsLeft()
+int Deck::cardsLeft() const
 {
 	return cards.size();
 }

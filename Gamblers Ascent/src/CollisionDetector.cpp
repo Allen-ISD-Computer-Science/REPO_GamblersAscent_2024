@@ -38,7 +38,6 @@ bool CollisionDetector::isColliding(int x, int y, int floor) const
 //		std::cout << "no collision detected, location: " << x << ", " << y << "\n";
 	}
 	return false;
-	return false;
 }
 
 bool CollisionDetector::isColliding(SDL_Rect player, SDL_Rect* intersection) const
