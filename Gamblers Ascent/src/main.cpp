@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Blackjack.h"
 #include "MouseHandler.h"
+#include "Text_Renderer.h"
 
 
 int main(int argc, char* argv[])
@@ -34,6 +35,9 @@ int main(int argc, char* argv[])
 	// asset manager
 	Asset_Manager Asset_Manager(filePaths, handler.renderer);
 	Asset_Manager.LoadAssets();
+
+	//text renderer
+	TextRenderer textRenderer(&handler, basePath + "..\\..\\..\\Gamblers Ascent\\res\\fonts\\04B_30__.ttf", 18);
 
 	//floors 
 	SDL_Texture* floorTextures[2] = {
@@ -199,6 +203,13 @@ int main(int argc, char* argv[])
 		//rendering the elevator UI
 		if (elevatorScreenActive)
 		{
+			if (!(ElevatorCoordinates.x - 50 < PlayerCoordinates.TrueX &&
+				ElevatorCoordinates.x + 50 > PlayerCoordinates.TrueX &&
+				ElevatorCoordinates.y - 50 < PlayerCoordinates.TrueY &&
+				ElevatorCoordinates.y + 50 > PlayerCoordinates.TrueY))
+			{
+				elevatorScreenActive = false;
+			}
 			elevatorUI.render(Asset_Manager.Assets[7], backgroundRect, 0, 0);
 			if (leftMouseClicked)
 			{
@@ -222,6 +233,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		textRenderer.renderString("hello robel abraham", 100, 100, {0,0,0});
 		frameTime = SDL_GetTicks() - frameStart;
 
 		if (frameDelay > frameTime) {
