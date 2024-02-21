@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
 
 	//filePath Array
-	static const int AssetCount = 9;  //amount of assets
+	static const int AssetCount = 11;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png",
@@ -29,7 +29,9 @@ int main(int argc, char* argv[])
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\DealerTurn.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\PlayerTurn.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\elevatorUI.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\floor 001.png"
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\floor 001.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\dialogueboxbottom.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\dialogueboxtop.png"
 	};
 
 	// asset manager
@@ -69,7 +71,7 @@ int main(int argc, char* argv[])
 		int TrueY = 15;
 	} PlayerCoordinates;
 
-	// coordinates of pot guy to test npc interactions
+	// coordinates of pot guy to start blackjack
 	struct {
 		int x = 550;
 		int y = 500;
@@ -80,6 +82,14 @@ int main(int argc, char* argv[])
 		int x = 840;
 		int y = 415;
 	} ElevatorCoordinates;
+
+	// coordinates of blanket head to use the dialogue box
+	struct {
+		int x = 430;
+		int y = 450;
+	} BlanketHeadCoordinates;
+
+	//elevator related variables
 	bool elevatorScreenActive = false;
 	SDL_Rect elevatorUIRect = {230, 5, 185, 350};
 	SDL_Rect elevatorUIButtonsRects[6]{
@@ -92,9 +102,14 @@ int main(int argc, char* argv[])
 	};
 	int consecutiveFramesHeld = 0;
 
+	bool dialogueBoxAnimationStarted = false;
+	bool dialogueBoxAnimationComplete = false;
+	int dialogueBoxAnimationFrame = 0;
 	Image_Render player(&handler, playerWidth, playerHeight);
 	Image_Render background(&handler, ScreenWidth * 2, ScreenHeight * 2);
 	Image_Render elevatorUI(&handler, ScreenWidth, ScreenHeight);
+	Image_Render dialogueboxtop(&handler, ScreenWidth, ScreenHeight);
+	Image_Render dialogueboxbottom(&handler, ScreenWidth, ScreenHeight);
 
 	KeyboardHandler keyboardHandler(&handler);
 	MouseHandler mouseHandler(&handler);
@@ -165,6 +180,14 @@ int main(int argc, char* argv[])
 			{
 				elevatorScreenActive = true;
 			}
+			if (BlanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueX &&
+				BlanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueX &&
+				BlanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueY &&
+				BlanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			{
+				std::cout << "yay dialogue box\n";
+				dialogueBoxAnimationStarted = true;
+			}
 		}
 
 		if (keyboardHandler.DirectionalKeyPressed)
@@ -232,8 +255,40 @@ int main(int argc, char* argv[])
 				leftMouseClicked = false;
 			}
 		}
-
-		textRenderer.renderString("hello robel abraham", 100, 100, {0,0,0});
+		if (dialogueBoxAnimationStarted)
+		{
+			if (!(BlanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueX &&
+				BlanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueX &&
+				BlanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueY &&
+				BlanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueY))
+			{
+				dialogueBoxAnimationStarted = false;
+			}
+			if (dialogueBoxAnimationFrame <= 5)
+			{
+				dialogueboxtop.render(Asset_Manager.Assets[10], { 0, 0, ScreenWidth, ScreenHeight }, 0, -30 + (dialogueBoxAnimationFrame * 6));
+				dialogueboxbottom.render(Asset_Manager.Assets[9], { 0, 0, ScreenWidth, ScreenHeight }, 0, 125 - (dialogueBoxAnimationFrame * 25));
+				dialogueBoxAnimationFrame++;
+			}
+			else {
+				dialogueBoxAnimationStarted = false;
+				dialogueBoxAnimationComplete = true;
+				dialogueBoxAnimationFrame = 0;
+			}
+		}
+		else if (dialogueBoxAnimationComplete)
+		{
+			if (!(BlanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueX &&
+				BlanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueX &&
+				BlanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueY &&
+				BlanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueY))
+			{
+				dialogueBoxAnimationComplete = false;
+			}
+			dialogueboxtop.render(Asset_Manager.Assets[10], { 0, 0, ScreenWidth, ScreenHeight }, 0, 0);
+			dialogueboxbottom.render(Asset_Manager.Assets[9], { 0, 0, ScreenWidth, ScreenHeight }, 0, 0);
+			textRenderer.renderString("I'm nahom tadele and I got hoes", 65, 300, { 0,0,0 });
+		}
 		frameTime = SDL_GetTicks() - frameStart;
 
 		if (frameDelay > frameTime) {
