@@ -66,6 +66,9 @@
     <ClCompile Include="src\MouseHandler.cpp">
       <Filter>src\gamedev</Filter>
     </ClCompile>
+    <ClCompile Include="src\Text_Renderer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Image_Render.h">
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="src\MouseHandler.h">
       <Filter>src\gamedev</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Text_Renderer.h">
+      <Filter>src\rendering</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +176,12 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x64\SDL2_image.dll">
       <Filter>DLLs\x64</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_ttf-2.22.0\lib\x64\SDL2_ttf.dll">
+      <Filter>DLLs\x64</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_ttf-2.22.0\lib\x86\SDL2_ttf.dll">
+      <Filter>DLLs\x86</Filter>
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
