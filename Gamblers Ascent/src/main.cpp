@@ -7,12 +7,12 @@
 #include "Blackjack.h"
 #include "MouseHandler.h"
 #include "Text_Renderer.h"
-
+#include "CollisionDetector.h"
 
 int main(int argc, char* argv[])
 {
 	// creating a handler to manage all user input in the program
-	SDL_Handler handler(640, 360); //window width, window height
+	SDL_Handler handler(1920, 1080); //window width, window height
 
 	// base path of the program
 	std::string basePath = (std::string)SDL_GetBasePath();
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	static const int AssetCount = 11;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\finalfloor00.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\lobby floor.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\Blackjack_Screen.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\cardSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\chipSpriteSheet.png",
@@ -33,13 +33,12 @@ int main(int argc, char* argv[])
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\dialogueboxbottom.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\dialogueboxtop.png"
 	};
-
 	// asset manager
 	Asset_Manager Asset_Manager(filePaths, handler.renderer);
 	Asset_Manager.LoadAssets();
 
 	//text renderer
-	TextRenderer textRenderer(&handler, basePath + "..\\..\\..\\Gamblers Ascent\\res\\fonts\\04B_30__.ttf", 18);
+	TextRenderer textRenderer(&handler, basePath + "..\\..\\..\\Gamblers Ascent\\res\\fonts\\04B_30__.ttf", 54);
 
 	//floors 
 	SDL_Texture* floorTextures[2] = {
@@ -57,37 +56,37 @@ int main(int argc, char* argv[])
 	static int ScreenWidth = handler.screenWidth;
 	static int ScreenHeight = handler.screenHeight;
 
+	// Background variables
+	SDL_Rect backgroundRect = { 0, 0, ScreenWidth * 2, ScreenHeight * 2 };
+	SDL_Rect startScreenRect = { 0, 0, ScreenWidth, ScreenHeight };
+
 	// player variables
-	const static int playerWidth = playerSpritesheet.spriteWidth;
-	const static int playerHeight = playerSpritesheet.spriteHeight;
+	const static int playerWidth = playerSpritesheet.spriteWidth * 3;
+	const static int playerHeight = playerSpritesheet.spriteHeight * 3;
 	int playerState = 1;
 	int playerDirection = 1;
 
 	// different coordinates of the player
 	struct {
-		int ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
-		int ScreenY = (ScreenWidth / 2) - (playerHeight / 2);
-		int TrueX = 820;
-		int TrueY = 15;
+		SDL_Point ScreenCoordinates = { 
+			ScreenWidth / 2, 
+			ScreenHeight / 2
+		};
+		SDL_Point TrueCoordinates = { 1440, 810}; // Starting coordinates of the player
+		// 960, 540
 	} PlayerCoordinates;
 
-	// coordinates of pot guy to start blackjack
-	struct {
-		int x = 550;
-		int y = 500;
-	} PotGuyCoordinates;
+	// coordinates of pot guy to test npc interactions
+	SDL_Point PotGuyCoordinates = {1336, 308};
 
+	// Collision variables
+	CollisionDetector collisionDetector(playerWidth, playerHeight);
+	
 	// coordinates of the elevator
-	struct {
-		int x = 840;
-		int y = 415;
-	} ElevatorCoordinates;
+	SDL_Point elevatorCoordinates = { 840, 415 };
 
 	// coordinates of blanket head to use the dialogue box
-	struct {
-		int x = 430;
-		int y = 450;
-	} BlanketHeadCoordinates;
+	SDL_Point blanketHeadCoordinates = { 430, 450 };
 
 	//elevator related variables
 	bool elevatorScreenActive = false;
@@ -111,13 +110,16 @@ int main(int argc, char* argv[])
 	Image_Render dialogueboxtop(&handler, ScreenWidth, ScreenHeight);
 	Image_Render dialogueboxbottom(&handler, ScreenWidth, ScreenHeight);
 
+	Image_Render homeScreen(&handler, ScreenWidth, ScreenHeight);
+
+	// keyboard handler
 	KeyboardHandler keyboardHandler(&handler);
 	MouseHandler mouseHandler(&handler);
 	bool leftMouseClicked = false;
 	SDL_Point mousePosition;
 
 	// blackjack variables
-	Image_Render icons(&handler, 1280, 720);
+	Image_Render icons(&handler, 1920, 1080);
 	Blackjack blackjack(&handler, &keyboardHandler, &Asset_Manager, &cardSpritesheet, &chipSpritesheet);
 
 	// fps regulators
@@ -129,8 +131,8 @@ int main(int argc, char* argv[])
 
 	bool gameRunning = true;
 
-	while (gameRunning) {
-
+	// Start Menu Game Loop
+	while (false) {
 		frameStart = SDL_GetTicks();
 
 		if (SDL_PollEvent(&handler.event)) {
@@ -153,37 +155,64 @@ int main(int argc, char* argv[])
 			}
 		}
 
-
 		//updating the background
-
 		handler.ClearRenderer();
+		homeScreen.render(Asset_Manager.Assets[7], startScreenRect, 0, 0);
+
+		frameTime = SDL_GetTicks() - frameStart;
+		if (frameDelay > frameTime) { SDL_Delay(frameDelay - frameTime); }
+		//breaking out of the WaitEvent
+		if (!gameRunning) { break; }
+	}
+
+
+	// Main Game Loop
+	while (gameRunning) {
+
+		frameStart = SDL_GetTicks();
+
+		if (SDL_PollEvent(&handler.event)) {
+			// checking what event is occuring
+			switch (handler.event.type) {
+			case (SDL_QUIT):
+				gameRunning = false;
+				goto quit;
+				break;
+			case (SDL_WINDOWEVENT):
+				if (handler.event.window.event == SDL_WINDOWEVENT_RESIZED)
+				{
+					handler.ResizeWindow(handler.event.window.data1, handler.event.window.data2);
+				}
+			}
+		}
 
 		// dealing with keyboard inputs
 		keyboardHandler.UpdateKeyStates();
 
 		if (keyboardHandler.E_key)
 		{
-			if (PotGuyCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				PotGuyCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				PotGuyCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				PotGuyCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			if (PotGuyCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				PotGuyCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				PotGuyCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				PotGuyCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y)
 			{
 				std::cout << "npc interacted with, blackjack game started.\n";
 				blackjack.newGame();
+				blackjack.isRunning = true;
 				blackjack.gameLoop();
-				goto quit;
+				
 			}
-			if (ElevatorCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				ElevatorCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				ElevatorCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				ElevatorCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			if (elevatorCoordinates.x - 50 < PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.x + 50 > PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.y - 50 < PlayerCoordinates.TrueCoordinates.y &&
+				elevatorCoordinates.y + 50 > PlayerCoordinates.TrueCoordinates.y)
 			{
 				elevatorScreenActive = true;
 			}
-			if (BlanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				BlanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			if (blanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueCoordinates.y)
 			{
 				std::cout << "yay dialogue box\n";
 				dialogueBoxAnimationStarted = true;
@@ -195,23 +224,25 @@ int main(int argc, char* argv[])
 			keyboardHandler.DirectionalKey(playerDirection);
 		}
 
-		// rendering the background
-		SDL_Rect backgroundRect = { 0, 0, ScreenWidth * 2, ScreenHeight * 2 };
+
 
 		// checking to move either background or player
 		keyboardHandler.CheckBackgroundLimits();
 
+		
 		// X axis movement
-		keyboardHandler.MoveBackgroundX(PlayerCoordinates.ScreenX, PlayerCoordinates.TrueX, ScreenWidth, playerWidth);
+		
+		keyboardHandler.MoveBackgroundX(PlayerCoordinates.ScreenCoordinates.x, PlayerCoordinates.TrueCoordinates.x, ScreenWidth, playerWidth);
 
 		// Y axis movement
-		keyboardHandler.MoveBackgroundY(PlayerCoordinates.ScreenY, PlayerCoordinates.TrueY, ScreenHeight, playerHeight);
-
-		background.render(activeFloor, backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
-
-		// true coordinate debugging
-		//std::cout << "(" << PlayerCoordinates.TrueX << "," << PlayerCoordinates.TrueY << ")\n";
-
+		keyboardHandler.MoveBackgroundY(PlayerCoordinates.ScreenCoordinates.y, PlayerCoordinates.TrueCoordinates.y, ScreenHeight, playerHeight);
+		
+		// dealing with collision checks
+		if (collisionDetector.isColliding(PlayerCoordinates.TrueCoordinates.x, PlayerCoordinates.TrueCoordinates.y, 0))
+		{
+		//	PlayerCoordinates.TrueCoordinates.x -= keyboardHandler.BackgroundSpeedX;
+		//	PlayerCoordinates.TrueCoordinates.y -= keyboardHandler.BackgroundSpeedY;
+		}
 		// dealing with the players animations
 		keyboardHandler.UpdatePlayerAnimation(consecutiveFramesHeld, playerState);
 		keyboardHandler.HandleEdgeCaseDirections(playerDirection);
@@ -220,16 +251,28 @@ int main(int argc, char* argv[])
 		keyboardHandler.BackgroundSpeedX = 0;
 		keyboardHandler.BackgroundSpeedY = 0;
 
-		// rendering the player
-		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenX, PlayerCoordinates.ScreenY);
 
-		//rendering the elevator UI
+		handler.ClearRenderer();
+
+		background.render(Asset_Manager.Assets[1], backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
+
+
+		// rendering the player
+		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenCoordinates.x, PlayerCoordinates.ScreenCoordinates.y);
+
+
+		// reseting the speed
+		keyboardHandler.BackgroundSpeedX = 0;
+		keyboardHandler.BackgroundSpeedY = 0;
+
+		
+
 		if (elevatorScreenActive)
 		{
-			if (!(ElevatorCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				ElevatorCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				ElevatorCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				ElevatorCoordinates.y + 50 > PlayerCoordinates.TrueY))
+			if (!(elevatorCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				elevatorCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
 			{
 				elevatorScreenActive = false;
 			}
@@ -257,17 +300,17 @@ int main(int argc, char* argv[])
 		}
 		if (dialogueBoxAnimationStarted)
 		{
-			if (!(BlanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				BlanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueY))
+			if (!(blanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
 			{
 				dialogueBoxAnimationStarted = false;
 			}
 			if (dialogueBoxAnimationFrame <= 5)
 			{
-				dialogueboxtop.render(Asset_Manager.Assets[10], { 0, 0, ScreenWidth, ScreenHeight }, 0, -30 + (dialogueBoxAnimationFrame * 6));
-				dialogueboxbottom.render(Asset_Manager.Assets[9], { 0, 0, ScreenWidth, ScreenHeight }, 0, 125 - (dialogueBoxAnimationFrame * 25));
+				dialogueboxtop.render(Asset_Manager.Assets[10], { 0, 0, ScreenWidth, ScreenHeight }, 0, -90 + (dialogueBoxAnimationFrame * 6));
+				dialogueboxbottom.render(Asset_Manager.Assets[9], { 0, 0, ScreenWidth, ScreenHeight }, 0, 375 - (dialogueBoxAnimationFrame * 25));
 				dialogueBoxAnimationFrame++;
 			}
 			else {
@@ -278,17 +321,23 @@ int main(int argc, char* argv[])
 		}
 		else if (dialogueBoxAnimationComplete)
 		{
-			if (!(BlanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				BlanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueY))
+			if (!(blanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
 			{
 				dialogueBoxAnimationComplete = false;
 			}
 			dialogueboxtop.render(Asset_Manager.Assets[10], { 0, 0, ScreenWidth, ScreenHeight }, 0, 0);
 			dialogueboxbottom.render(Asset_Manager.Assets[9], { 0, 0, ScreenWidth, ScreenHeight }, 0, 0);
-			textRenderer.renderString("I'm nahom tadele and I got hoes", 65, 300, { 0,0,0 });
+			textRenderer.renderString("I'm nahom tadele and I got hoes", 195, 900, { 0,0,0 });
 		}
+		// updating the renderer
+		SDL_RenderPresent(handler.renderer);
+
+		SDL_UpdateWindowSurface(handler.m_window);
+
+
 		frameTime = SDL_GetTicks() - frameStart;
 
 		if (frameDelay > frameTime) {

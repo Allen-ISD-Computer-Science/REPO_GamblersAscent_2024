@@ -2,6 +2,7 @@
 #include "SDL_Handler.h"
 #include "SDL_Image.h"
 
+
 class KeyboardHandler
 {
 public:
@@ -25,10 +26,7 @@ public:
 
 	// keys states
 	bool E_key;
-	bool B_key;
-
-
-
+	bool ESC_key;
 private:
 
 	SDL_Handler m_handler;

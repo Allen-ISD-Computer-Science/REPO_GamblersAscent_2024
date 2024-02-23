@@ -15,6 +15,9 @@ public:
 	//renderer
 	SDL_Renderer* renderer;
 
+	//window
+	SDL_Window* m_window;
+
 public:
 	//constructor creates the window
 	SDL_Handler(int screenWidth, int screenHeight);
@@ -32,8 +35,7 @@ public:
 	void DrawRectangle(SDL_Rect srcrect, SDL_Rect destrect, SDL_Texture* text);
 
 private:
-	//window
-	SDL_Window* m_window;
+
 
 	//surface
 	SDL_Surface* m_screen_surface;

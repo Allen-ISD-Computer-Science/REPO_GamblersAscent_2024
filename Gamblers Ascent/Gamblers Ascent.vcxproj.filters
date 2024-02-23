@@ -115,6 +115,42 @@
     <Image Include="res\playerSpriteSheet.png">
       <Filter>res</Filter>
     </Image>
+    <Image Include="res\background.jpg">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\Blackjack_Screen.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\cardSpriteSheet.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\chipSpriteSheet.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\DealerTurn.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\dialoguebox2.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\elevator ui.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\finalfloor00.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\floor 001.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\pause screen.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\PlayerTurn.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\spritesheet.png">
+      <Filter>res</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x86\optional\libtiff-5.dll">
@@ -147,5 +183,13 @@
     <CopyFileToFolders Include="..\includes\SDL2_ttf-2.22.0\lib\x86\SDL2_ttf.dll">
       <Filter>DLLs\x86</Filter>
     </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Game_Screen.psd">
+      <Filter>res</Filter>
+    </None>
+    <None Include="res\spritesheet.psd">
+      <Filter>res</Filter>
+    </None>
   </ItemGroup>
 </Project>
