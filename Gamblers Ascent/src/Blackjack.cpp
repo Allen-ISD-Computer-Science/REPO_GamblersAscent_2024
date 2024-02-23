@@ -6,10 +6,10 @@ Blackjack::Blackjack(SDL_Handler* handler, KeyboardHandler* keyboardHandler, Ass
 	chipSrcRect({ 0,0, 0, 0 }), cardSrcRect({ 0,0, 0, 0 }), cardDestRect({ 0,0, 0, 0 }),
 	m_handler(handler), m_keyboardHandler(keyboardHandler), m_Asset_Manager(Asset_Manager), m_cardSpritesheet(cardSpritesheet), m_chipSpritesheet(chipSpritesheet) {
 	
-	cards = new Image_Render(m_handler, 41, 59);
-	chips = new Image_Render(m_handler, 17, 17);
-	blackjackScreen = new Image_Render(m_handler, 640, 360);
-	icons = new Image_Render(m_handler, 32, 32);
+	cards = new Image_Render(m_handler, 123, 177);
+	chips = new Image_Render(m_handler, 51, 51);
+	blackjackScreen = new Image_Render(m_handler, 1920, 1080);
+	icons = new Image_Render(m_handler, 96, 96);
 	botAI = new BlackjackAI(5, 5, 5, 10);
 };
 Blackjack::~Blackjack() {
@@ -109,8 +109,10 @@ void Blackjack::gameLoop() {
 }
 // Renders the game. The game is rendered in the following order: Background, Player's hand, Dealer's hand, Player's chips, Dealer's chips, Player's icon, Dealer's icon
 void Blackjack::render() {
+
+
 	m_handler->ClearRenderer();
-	SDL_Rect backgroundRect = { 0, 0, 640, 360 };
+	SDL_Rect backgroundRect = { 0, 0, 1920, 1080 };
 	// rendering the background
 	blackjackScreen->render(m_Asset_Manager->Assets[2], backgroundRect, 0, 0);
 
@@ -120,10 +122,18 @@ void Blackjack::render() {
 
 	// Renders the player/dealer icon
 	if (player.isDealer) 
-		icons->render(m_Asset_Manager->Assets[5], { 0, 0, 32, 32 }, 40, 46);
+		icons->render(m_Asset_Manager->Assets[5], { 0, 0, 96, 96 }, 120, 138);
 	else 
-		icons->render(m_Asset_Manager->Assets[6], { 0, 0, 32, 32 }, 40, 46);
+		icons->render(m_Asset_Manager->Assets[6], { 0, 0, 96, 96 }, 120, 138);
+
+	SDL_RenderPresent(m_handler->renderer);
+
+	SDL_UpdateWindowSurface(m_handler->m_window);
 	
+}
+void Blackjack::calculateCardPositions(Player* player, Player* dealer)
+{
+
 }
 void Blackjack::renderCardsNChips(Player* player, Player* dealer) {
 	if (!betPhase) {
@@ -149,12 +159,12 @@ void Blackjack::renderCardsNChips(Player* player, Player* dealer) {
 			chipSrcRect = m_chipSpritesheet->getSprite(i + 1, 1);
 			// Calculate the position for the current chip. If the chip is Chip_50 or higher it will be renderd in the next row 20 pixels below the previous column and starting back at the first row
 			if (i < 5) {
-				chipX = chipStartingX + (i * (m_chipSpritesheet->spriteWidth + chipSpacing));
+				chipX = chipStartingX + (i * (m_chipSpritesheet->spriteWidth * 3 + chipSpacing));
 				chipY = chipStartingY;
 			}
 			else {
-				chipX = chipStartingX + ((i - 5) * (m_chipSpritesheet->spriteWidth + chipSpacing));
-				chipY = chipStartingY + 20;
+				chipX = chipStartingX + ((i - 5) * (m_chipSpritesheet->spriteWidth * 3  + chipSpacing));
+				chipY = chipStartingY + 60;
 			}
 			chips->render(m_Asset_Manager->Assets[4], chipSrcRect, chipX, chipY);
 		}
@@ -169,7 +179,7 @@ void Blackjack::renderCardsNChips(Player* player, Player* dealer) {
 
 			// Use the index to get the sprite
 			chipSrcRect = m_chipSpritesheet->getSprite(chipIndex + 1, 1);
-			chips->render(m_Asset_Manager->Assets[4], chipSrcRect, 311, 213);
+			chips->render(m_Asset_Manager->Assets[4], chipSrcRect, 933, 639);
 		}
 	}
 	//    ---------------DEALER----------------
@@ -201,12 +211,12 @@ void Blackjack::renderCardsNChips(Player* player, Player* dealer) {
 			chipSrcRect = m_chipSpritesheet->getSprite(i + 1, 1);
 			// Calculate the position for the current chip. If the chip is Chip_50 or higher it will be renderd in the next row 20 pixels below the previous column and starting back at the first row
 			if (i < 5) {
-				dealerChipX = dealerChipStartingX + (i * (m_chipSpritesheet->spriteWidth + chipSpacing));
+				dealerChipX = dealerChipStartingX + (i * (m_chipSpritesheet->spriteWidth * 3 + chipSpacing));
 				dealerChipY = dealerChipStartingY;
 			}
 			else {
-				dealerChipX = dealerChipStartingX + ((i - 5) * (m_chipSpritesheet->spriteWidth + chipSpacing));
-				dealerChipY = dealerChipStartingY + 20;
+				dealerChipX = dealerChipStartingX + ((i - 5) * (m_chipSpritesheet->spriteWidth * 3 + chipSpacing));
+				dealerChipY = dealerChipStartingY + 60;
 			}
 			chips->render(m_Asset_Manager->Assets[4], chipSrcRect, dealerChipX, dealerChipY);
 		}
@@ -221,7 +231,7 @@ void Blackjack::renderCardsNChips(Player* player, Player* dealer) {
 
 			// Use the index to get the sprite
 			chipSrcRect = m_chipSpritesheet->getSprite(chipIndex + 1, 1);
-			chips->render(m_Asset_Manager->Assets[4], chipSrcRect, 311, 146);
+			chips->render(m_Asset_Manager->Assets[4], chipSrcRect, 933, 438);
 		}
 	}
 }

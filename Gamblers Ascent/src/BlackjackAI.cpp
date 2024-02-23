@@ -89,12 +89,14 @@ Action BlackjackAI::determineAction(Hand hand, Card dealerCard)
 	if (hand.cardsInHand() == 2)
 	{
 		// Splitting
-		if (hand.cards[0].get_value() == hand.cards[1].get_value()) 
+		/* if (hand.cards[0].get_value() == hand.cards[1].get_value())
 		{
+
 			 return Action::Split;
 		}
+		*/
 		// Doubling
-		else if (hand.handValue() == 11)
+		if (hand.handValue() == 11)
 		{
 			return Action::Double;
 		}

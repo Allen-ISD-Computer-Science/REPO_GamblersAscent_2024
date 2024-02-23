@@ -4,7 +4,7 @@
 KeyboardHandler::KeyboardHandler(SDL_Handler* handler)
 	:m_handler(*handler),
 	KeyStates(SDL_GetKeyboardState(NULL)), DirectionalKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false), E_key(false), ESC_key(false),
-	BackgroundSpeedX(0), BackgroundSpeedY(0), BackgroundX(-500), BackgroundY(-345),
+	BackgroundSpeedX(0), BackgroundSpeedY(0), BackgroundX(-1920), BackgroundY(-1080),
 	RightLimitReached(false), LeftLimitReached(false), TopLimitReached(false), BottomLimitReached(false)
 {
 }
@@ -13,19 +13,19 @@ void KeyboardHandler::DirectionalKey(int& playerDirection)
 {
 	if (W_key) {
 		playerDirection = 4;
-		BackgroundSpeedY += 4;
+		BackgroundSpeedY += 8;
 	}
 	if (A_key) {
 		playerDirection = 2;
-		BackgroundSpeedX += 4;
+		BackgroundSpeedX += 8;
 	}
 	if (S_key) {
 		playerDirection = 1;
-		BackgroundSpeedY -= 4;
+		BackgroundSpeedY -= 8;
 	}
 	if (D_key) {
 		playerDirection = 3;
-		BackgroundSpeedX -= 4;
+		BackgroundSpeedX -= 8;
 	}
 	CalculateCustomDiagonals(playerDirection);
 }
@@ -36,11 +36,11 @@ void KeyboardHandler::MoveBackgroundX(int& ScreenX, int& TrueX, int& ScreenWidth
 	if ((!(LeftLimitReached || RightLimitReached)) && (ScreenX == (ScreenWidth / 2) - (playerWidth / 2)))
 	{
 		BackgroundX += BackgroundSpeedX;
-		TrueX -= BackgroundSpeedX;
+		TrueX -= BackgroundSpeedX / 2;
 	}
 	else {
 		ScreenX -= BackgroundSpeedX;
-		TrueX -= BackgroundSpeedX;
+		TrueX -= BackgroundSpeedX / 2;
 	}
 
 	// recentering X axis if it gets off
@@ -61,11 +61,11 @@ void KeyboardHandler::MoveBackgroundY(int& ScreenY, int& TrueY, int& ScreenHeigh
 	if ((!(TopLimitReached || BottomLimitReached)) && (ScreenY == (ScreenHeight / 2) - (playerHeight / 2)))
 	{
 		BackgroundY += BackgroundSpeedY;
-		TrueY += BackgroundSpeedY;
+		TrueY -= BackgroundSpeedY / 2;
 	}
 	else {
 		ScreenY -= BackgroundSpeedY;
-		TrueY += BackgroundSpeedY;
+		TrueY -= BackgroundSpeedY / 2;
 	}
 
 	// recentering Y axis if it gets off
@@ -145,26 +145,26 @@ void KeyboardHandler::CalculateCustomDiagonals(int& playerDirection)
 	if (BackgroundSpeedX > 0 && BackgroundSpeedY > 0)
 	{
 		playerDirection = 7;
-		BackgroundSpeedX = 4;
-		BackgroundSpeedY = 2;
+		BackgroundSpeedX = 8;
+		BackgroundSpeedY = 4;
 	}
 	else if (BackgroundSpeedX < 0 && BackgroundSpeedY > 0)
 	{
 		playerDirection = 8;
-		BackgroundSpeedX = -4;
-		BackgroundSpeedY = 2;
+		BackgroundSpeedX = -8;
+		BackgroundSpeedY = 4;
 	}
 	else if (BackgroundSpeedX > 0 && BackgroundSpeedY < 0)
 	{
 		playerDirection = 6;
-		BackgroundSpeedX = 4;
-		BackgroundSpeedY = -2;
+		BackgroundSpeedX = 8;
+		BackgroundSpeedY = -4;
 	}
 	else if (BackgroundSpeedX < 0 && BackgroundSpeedY < 0)
 	{
 		playerDirection = 5;
-		BackgroundSpeedX = -4;
-		BackgroundSpeedY = -2;
+		BackgroundSpeedX = -8;
+		BackgroundSpeedY = -4;
 	}
 }
 

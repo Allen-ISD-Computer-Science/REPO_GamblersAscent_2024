@@ -45,7 +45,7 @@ bool CollisionDetector::isColliding(SDL_Rect player, SDL_Rect* intersection) con
 	return false;
 }
 
-bool CollisionDetector::isColliding(SDL_Point* mouse) const
+bool CollisionDetector::isColliding(SDL_Point* mouse, int location) const
 {
 	return false;
 }
