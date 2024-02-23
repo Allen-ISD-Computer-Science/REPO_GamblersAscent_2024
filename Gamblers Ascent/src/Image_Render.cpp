@@ -12,10 +12,10 @@ Image_Render::~Image_Render() {
 void Image_Render::render(SDL_Texture* texture, SDL_Rect srcrect, int imageX, int imageY) {
 	m_texture = texture;
 	
-	SDL_Rect destrect = {  imageX, //topleft player position x axis (centered)
-						   imageY, //topleft player position y axis (centered)
-						   m_imageWidth, //player width 
-						   m_imageHeight }; //player height
+	SDL_Rect destrect = {  imageX, //topleft image position x axis (centered)
+						   imageY, //topleft image position y axis (centered)
+						   m_imageWidth, //image width 
+						   m_imageHeight }; //image height
 	m_handler.DrawRectangle(srcrect, destrect, m_texture);
 
 }

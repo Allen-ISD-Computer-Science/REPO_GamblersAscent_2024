@@ -6,6 +6,7 @@
 #include <iostream>
 #include "Blackjack.h"
 #include "MouseHandler.h"
+#include "Text_Renderer.h"
 #include "CollisionDetector.h"
 
 int main(int argc, char* argv[])
@@ -18,20 +19,33 @@ int main(int argc, char* argv[])
 
 
 	//filePath Array
-	static const int AssetCount = 8;  //amount of assets
+	static const int AssetCount = 11;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\floor 001.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\lobby floor.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\Blackjack_Screen.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\cardSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\chipSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\DealerTurn.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\PlayerTurn.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\Main_Menu.png"
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\elevatorUI.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\floor 001.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\dialogueboxbottom.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\dialogueboxtop.png"
 	};
 	// asset manager
 	Asset_Manager Asset_Manager(filePaths, handler.renderer);
 	Asset_Manager.LoadAssets();
+
+	//text renderer
+	TextRenderer textRenderer(&handler, basePath + "..\\..\\..\\Gamblers Ascent\\res\\fonts\\04B_30__.ttf", 54);
+
+	//floors 
+	SDL_Texture* floorTextures[2] = {
+		Asset_Manager.Assets[1], //lobby
+		Asset_Manager.Assets[8] //floor 1
+	};
+	SDL_Texture* activeFloor = floorTextures[0];
 
 	// Spritesheet Handler
 	Spritesheet_Handler playerSpritesheet(256, 512, 4, 8); //width, height, rows, columns
@@ -67,15 +81,42 @@ int main(int argc, char* argv[])
 
 	// Collision variables
 	CollisionDetector collisionDetector(playerWidth, playerHeight);
+	
+	// coordinates of the elevator
+	SDL_Point elevatorCoordinates = { 840, 415 };
 
+	// coordinates of blanket head to use the dialogue box
+	SDL_Point blanketHeadCoordinates = { 430, 450 };
+
+	//elevator related variables
+	bool elevatorScreenActive = false;
+	SDL_Rect elevatorUIRect = {230, 5, 185, 350};
+	SDL_Rect elevatorUIButtonsRects[6]{
+		{310, 305, 70, 25}, // lobby
+		{310, 250, 70, 25}, // floor 1
+		{310, 195, 70, 25}, // floor 2
+		{310, 140, 70, 25}, // floor 3
+		{310, 85, 70, 25}, // floor 4
+		{310, 30, 70, 25} // floor 5
+	};
 	int consecutiveFramesHeld = 0;
 
+	bool dialogueBoxAnimationStarted = false;
+	bool dialogueBoxAnimationComplete = false;
+	int dialogueBoxAnimationFrame = 0;
 	Image_Render player(&handler, playerWidth, playerHeight);
 	Image_Render background(&handler, ScreenWidth * 2, ScreenHeight * 2);
+	Image_Render elevatorUI(&handler, ScreenWidth, ScreenHeight);
+	Image_Render dialogueboxtop(&handler, ScreenWidth, ScreenHeight);
+	Image_Render dialogueboxbottom(&handler, ScreenWidth, ScreenHeight);
+
 	Image_Render homeScreen(&handler, ScreenWidth, ScreenHeight);
 
 	// keyboard handler
 	KeyboardHandler keyboardHandler(&handler);
+	MouseHandler mouseHandler(&handler);
+	bool leftMouseClicked = false;
+	SDL_Point mousePosition;
 
 	// blackjack variables
 	Image_Render icons(&handler, 1920, 1080);
@@ -109,8 +150,7 @@ int main(int argc, char* argv[])
 			case (SDL_MOUSEBUTTONDOWN):
 				if (handler.event.button.button == SDL_BUTTON_LEFT)
 				{
-					std::cout << "Mouse clicked at: " << handler.event.button.x << ", " << handler.event.button.y << "\n";
-
+					leftMouseClicked = true;
 				}
 			}
 		}
@@ -162,6 +202,21 @@ int main(int argc, char* argv[])
 				blackjack.gameLoop();
 				
 			}
+			if (elevatorCoordinates.x - 50 < PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.x + 50 > PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.y - 50 < PlayerCoordinates.TrueCoordinates.y &&
+				elevatorCoordinates.y + 50 > PlayerCoordinates.TrueCoordinates.y)
+			{
+				elevatorScreenActive = true;
+			}
+			if (blanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueCoordinates.y)
+			{
+				std::cout << "yay dialogue box\n";
+				dialogueBoxAnimationStarted = true;
+			}
 		}
 
 		if (keyboardHandler.DirectionalKeyPressed)
@@ -176,6 +231,7 @@ int main(int argc, char* argv[])
 
 		
 		// X axis movement
+		
 		keyboardHandler.MoveBackgroundX(PlayerCoordinates.ScreenCoordinates.x, PlayerCoordinates.TrueCoordinates.x, ScreenWidth, playerWidth);
 
 		// Y axis movement
@@ -200,8 +256,6 @@ int main(int argc, char* argv[])
 
 		background.render(Asset_Manager.Assets[1], backgroundRect, keyboardHandler.BackgroundX, keyboardHandler.BackgroundY);
 
-		// true coordinate debugging
-		std::cout << "(" << PlayerCoordinates.TrueCoordinates.x << "," << PlayerCoordinates.TrueCoordinates.y << ")\n";
 
 		// rendering the player
 		player.render(Asset_Manager.Assets[0], playerSpritesheet.getSprite(playerState, playerDirection), PlayerCoordinates.ScreenCoordinates.x, PlayerCoordinates.ScreenCoordinates.y);
@@ -211,7 +265,74 @@ int main(int argc, char* argv[])
 		keyboardHandler.BackgroundSpeedX = 0;
 		keyboardHandler.BackgroundSpeedY = 0;
 
+		
 
+		if (elevatorScreenActive)
+		{
+			if (!(elevatorCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				elevatorCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
+			{
+				elevatorScreenActive = false;
+			}
+			elevatorUI.render(Asset_Manager.Assets[7], backgroundRect, 0, 0);
+			if (leftMouseClicked)
+			{
+				mousePosition = mouseHandler.getPosition();
+				if (!SDL_PointInRect(&mousePosition, &elevatorUIRect))
+				{
+					elevatorScreenActive = false;
+				}
+				else if (SDL_PointInRect(&mousePosition, &elevatorUIButtonsRects[0]))
+				{
+					activeFloor = floorTextures[0];
+					elevatorScreenActive = false;
+				}
+				else if (SDL_PointInRect(&mousePosition, &elevatorUIButtonsRects[1]))
+				{
+					activeFloor = floorTextures[1];
+					elevatorScreenActive = false;
+				}
+				std::cout << "Mouse position " << mousePosition.x << "," << mousePosition.y << "\n";
+				leftMouseClicked = false;
+			}
+		}
+		if (dialogueBoxAnimationStarted)
+		{
+			if (!(blanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
+			{
+				dialogueBoxAnimationStarted = false;
+			}
+			if (dialogueBoxAnimationFrame <= 5)
+			{
+				dialogueboxtop.render(Asset_Manager.Assets[10], { 0, 0, ScreenWidth, ScreenHeight }, 0, -90 + (dialogueBoxAnimationFrame * 6));
+				dialogueboxbottom.render(Asset_Manager.Assets[9], { 0, 0, ScreenWidth, ScreenHeight }, 0, 375 - (dialogueBoxAnimationFrame * 25));
+				dialogueBoxAnimationFrame++;
+			}
+			else {
+				dialogueBoxAnimationStarted = false;
+				dialogueBoxAnimationComplete = true;
+				dialogueBoxAnimationFrame = 0;
+			}
+		}
+		else if (dialogueBoxAnimationComplete)
+		{
+			if (!(blanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
+			{
+				dialogueBoxAnimationComplete = false;
+			}
+			dialogueboxtop.render(Asset_Manager.Assets[10], { 0, 0, ScreenWidth, ScreenHeight }, 0, 0);
+			dialogueboxbottom.render(Asset_Manager.Assets[9], { 0, 0, ScreenWidth, ScreenHeight }, 0, 0);
+			textRenderer.renderString("I'm nahom tadele and I got hoes", 195, 900, { 0,0,0 });
+		}
+		// updating the renderer
 		SDL_RenderPresent(handler.renderer);
 
 		SDL_UpdateWindowSurface(handler.m_window);
