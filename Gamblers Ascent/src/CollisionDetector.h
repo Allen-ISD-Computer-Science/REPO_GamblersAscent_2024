@@ -1,79 +1,85 @@
 #pragma once
 #include "SDL_Handler.h"
-#include "SDL_Image.h"
-#include "KeyboardHandler.h"
-#include <array>
+#include <vector>
 
-struct CollisionLine {
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-};
 
 class CollisionDetector
 {
 public:
-	// create a std Vector of a group of CollisionLines that represent objects in the game. Split into 4 sections of the map 
-	// to reduce the amount of Lines that need to be checked for collision
-	// Adjust the Lines to fit the map by changing the numbers with respect to -500, -345 
-	CollisionLine objectBoundaries[4][5] =
-	{
-		{
-			{},
-			{},
-			{},
-			{},
-			{},
-		},
-		{
-			{-238, 7, -200, 27},
-			{-198, 27, 46, -95},
-			{},
-			{},
-			{},
-		},
-		{
-			{-370, 45, -252, 103},
-			{-252, 103, -252, 131},
-			{-250, 111, 128, 319},
-			{},
-			{},
-		},
-		{
-			{},
-			{},
-			{},
-			{},
-			{},
-		}
-	};
-	// Center of the screen to base the getSection() function off of
-	float centerX;
-	float centerY;
-
-	// create a array of a group of CollisionLine that represents the boundaries of the map as well as walls
-	CollisionLine mapBoundaries[4] =
-	{
-		{-500, -345, 500, -345},
-		{-500, -345, -500, 345},
-		{-500, 345, 500, 345},
-		{500, -345, 500, 345}
-	};
-	 
-
-	
+	CollisionDetector();
+	CollisionDetector(int defaultPlayerWidth, int defaultPlayerHeight);
+	// This function will be used to determine if the player has collided with an object.
+	bool isColliding(SDL_Rect player, int floor) const;
+	// This function will be used to determine if the player has collided with an object.
+	bool isColliding(int x, int y, int floor) const;
+	// This function will be used to determine if the player has collided with an object, and map the intersection.
+	bool isColliding(SDL_Rect player, SDL_Rect* intersection) const;
+	// This function will be used to determine if the mouse is located within the bounds of a rectangle.
+	bool isColliding(SDL_Point* mouse, int location) const;
 private:
-	KeyboardHandler keyH;
-public:
+	int defaultPlayerWidth;
+	int defaultPlayerHeight;
+	// The boundaries of the floor. These will be used to determine if the player has collided with the floor. The floor count is self explainatory.
+	const std::vector<SDL_Rect> floorBoundaries[5] = {
+	{
+		{0, 0, 1, 360},
+		{0, 359, 640, 1},
+		{639, 0, 1, 360},
+		{0, 0, 640, 1}
+	},
+	{
+		{},
+		{},
+		{},
+		{}
+	},
+	{
+		{},
+		{},
+		{},
+		{}
+	},
+	{
+		{},
+		{},
+		{},
+		{}
+	},
+	{
+		{},
+		{},
+		{},
+		{}
+	}
+	};
+	// The boundaries of the buttons.
+	const SDL_Rect startScreenButtons[5] = 
+	{
 
-	CollisionDetector(KeyboardHandler keyH);
-	~CollisionDetector();
-	// Check if the player is colliding with any of the CollisionLine in the Array matrix based on one of the 4 sections of the map the player is in
-	bool checkCollision(SDL_Rect* rect, int section);
+	};
+	const SDL_Rect pauseScreenButtons[3] = 
+	{
 
-private:
-	// Function that defines the section of the map the player is located in
-	int getSection();
+	};// Pre scale: 640x360
+    const SDL_Rect blackjackScreenButtons[15] = {
+        { 1116, 456, 123, 177 }, // Hit
+        { 336, 858, 120, 120 }, // Stand
+        { 492, 831, 63, 63 },  // Double
+        { 492, 939, 63, 63 }, // Split
+        { 258, 666, 45, 45 }, // Chip_1
+        { 318, 666, 45, 45 },// Chip_2
+        { 378, 666, 45, 45 },// Chip_5
+        { 438, 666, 45, 45 },// Chip_10
+        { 498, 666, 45, 45 },// Chip_25
+        { 258, 726, 45, 45 }, // Chip_50
+        { 318, 726, 45, 45 },// Chip_100
+        { 378, 726, 45, 45 }, // Chip_200
+        { 438, 726, 45, 45 }, // Chip_500
+        { 498, 726, 45, 45 }, // Chip_1000
+        { 933, 639, 45, 45 } // Revert bet
+    };
+};    
 
-};
+// Old: 640x360
+// New: 1920x1080
+// 3x scale

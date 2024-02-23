@@ -9,17 +9,14 @@ public:
 	int screenWidth;
 	int screenHeight;
 
-	// background movement
-	float backgroundSpeedX;
-	float backgroundSpeedY;
 	//looks for user input
 	SDL_Event event{};
 
 	//renderer
 	SDL_Renderer* renderer;
 
-	//keyboard state
-	const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+	//window
+	SDL_Window* m_window;
 
 public:
 	//constructor creates the window
@@ -37,13 +34,8 @@ public:
 	// renders the source rectangle of the texture to dest rectangle
 	void DrawRectangle(SDL_Rect srcrect, SDL_Rect destrect, SDL_Texture* text);
 
-	void keyPress(int &playerState, bool keyDown);
-
-
-
 private:
-	//window
-	SDL_Window* m_window;
+
 
 	//surface
 	SDL_Surface* m_screen_surface;
