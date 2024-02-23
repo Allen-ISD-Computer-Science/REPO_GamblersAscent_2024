@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 	static const int AssetCount = 11;  //amount of assets
 	std::string filePaths[AssetCount] = {
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\playerSpriteSheet.png",
-		basePath + "..\\..\\..\\Gamblers Ascent\\res\\floor 001.png",
+		basePath + "..\\..\\..\\Gamblers Ascent\\res\\lobby floor.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\Blackjack_Screen.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\cardSpriteSheet.png",
 		basePath + "..\\..\\..\\Gamblers Ascent\\res\\chipSpriteSheet.png",
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	Asset_Manager.LoadAssets();
 
 	//text renderer
-	TextRenderer textRenderer(&handler, basePath + "..\\..\\..\\Gamblers Ascent\\res\\fonts\\04B_30__.ttf", 18);
+	TextRenderer textRenderer(&handler, basePath + "..\\..\\..\\Gamblers Ascent\\res\\fonts\\04B_30__.ttf", 54);
 
 	//floors 
 	SDL_Texture* floorTextures[2] = {
@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
 
 	// coordinates of blanket head to use the dialogue box
 	SDL_Point blanketHeadCoordinates = { 430, 450 };
+
 	//elevator related variables
 	bool elevatorScreenActive = false;
 	SDL_Rect elevatorUIRect = {230, 5, 185, 350};
@@ -201,17 +202,17 @@ int main(int argc, char* argv[])
 				blackjack.gameLoop();
 				
 			}
-			if (elevatorCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				elevatorCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				elevatorCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				elevatorCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			if (elevatorCoordinates.x - 50 < PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.x + 50 > PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.y - 50 < PlayerCoordinates.TrueCoordinates.y &&
+				elevatorCoordinates.y + 50 > PlayerCoordinates.TrueCoordinates.y)
 			{
 				elevatorScreenActive = true;
 			}
-			if (blanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueX &&
-				blanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueX &&
-				blanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueY &&
-				blanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueY)
+			if (blanketHeadCoordinates.x - 50 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 50 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 50 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 50 > PlayerCoordinates.TrueCoordinates.y)
 			{
 				std::cout << "yay dialogue box\n";
 				dialogueBoxAnimationStarted = true;
@@ -268,10 +269,10 @@ int main(int argc, char* argv[])
 
 		if (elevatorScreenActive)
 		{
-			if (!(ElevatorCoordinates.x - 150 < PlayerCoordinates.TrueX &&
-				ElevatorCoordinates.x + 150 > PlayerCoordinates.TrueX &&
-				ElevatorCoordinates.y - 150 < PlayerCoordinates.TrueY &&
-				ElevatorCoordinates.y + 150 > PlayerCoordinates.TrueY))
+			if (!(elevatorCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				elevatorCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				elevatorCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
 			{
 				elevatorScreenActive = false;
 			}
@@ -299,10 +300,10 @@ int main(int argc, char* argv[])
 		}
 		if (dialogueBoxAnimationStarted)
 		{
-			if (!(BlanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueY &&
-				BlanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueY))
+			if (!(blanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
 			{
 				dialogueBoxAnimationStarted = false;
 			}
@@ -320,10 +321,10 @@ int main(int argc, char* argv[])
 		}
 		else if (dialogueBoxAnimationComplete)
 		{
-			if (!(BlanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueX &&
-				BlanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueY &&
-				BlanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueY))
+			if (!(blanketHeadCoordinates.x - 150 < PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.x + 150 > PlayerCoordinates.TrueCoordinates.x &&
+				blanketHeadCoordinates.y - 150 < PlayerCoordinates.TrueCoordinates.y &&
+				blanketHeadCoordinates.y + 150 > PlayerCoordinates.TrueCoordinates.y))
 			{
 				dialogueBoxAnimationComplete = false;
 			}

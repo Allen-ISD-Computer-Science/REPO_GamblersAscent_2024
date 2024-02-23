@@ -101,7 +101,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)\includes\SDL2-2.28.1\include;$(SolutionDir)\includes\SDL2_image-2.6.3\include;C:\Dev\Cpp\Gamblers Ascent\includes\SDL2_ttf-2.22.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\includes\SDL2-2.28.1\include;$(SolutionDir)\includes\SDL2_image-2.6.3\include;$(SolutionDir)\includes\SDL2_ttf-2.22.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
@@ -182,19 +182,18 @@
     <ClInclude Include="src\Text_Renderer.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\background.jpg" />
     <Image Include="res\Blackjack_Screen.png" />
     <Image Include="res\cardSpriteSheet.png" />
     <Image Include="res\chipSpriteSheet.png" />
     <Image Include="res\DealerTurn.png" />
-    <Image Include="res\dialoguebox2.png" />
-    <Image Include="res\elevator ui.png" />
-    <Image Include="res\finalfloor00.png" />
-    <Image Include="res\floor 001.png" />
+    <Image Include="res\floor 1 updated.png" />
+    <Image Include="res\floor 2 updated.png" />
+    <Image Include="res\floor 3.png" />
+    <Image Include="res\lobby floor.png" />
+    <Image Include="res\Main_Menu.png" />
     <Image Include="res\pause screen.png" />
     <Image Include="res\playerSpriteSheet.png" />
     <Image Include="res\PlayerTurn.png" />
-    <Image Include="res\spritesheet.png" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\includes\SDL2-2.28.1\lib\x64\SDL2.dll">
@@ -271,10 +270,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </CopyFileToFolders>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\Game_Screen.psd" />
-    <None Include="res\spritesheet.psd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
