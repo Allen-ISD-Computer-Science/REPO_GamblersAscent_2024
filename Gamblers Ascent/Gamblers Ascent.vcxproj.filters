@@ -22,6 +22,9 @@
     <Filter Include="src\gamedev">
       <UniqueIdentifier>{83bd80e0-93b6-4744-aa97-89e0765e79d2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\blackjack">
+      <UniqueIdentifier>{004a498b-24f7-48ac-8129-d6ab566d2789}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -45,6 +48,27 @@
     <ClCompile Include="src\SDL_Handler.cpp">
       <Filter>src\rendering</Filter>
     </ClCompile>
+    <ClCompile Include="src\BlackjackAI.cpp">
+      <Filter>src\blackjack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Blackjack.cpp">
+      <Filter>src\blackjack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Card.cpp">
+      <Filter>src\blackjack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Deck.cpp">
+      <Filter>src\blackjack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Hand.cpp">
+      <Filter>src\blackjack</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MouseHandler.cpp">
+      <Filter>src\gamedev</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Text_Renderer.cpp">
+      <Filter>src\rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Image_Render.h">
@@ -65,9 +89,66 @@
     <ClInclude Include="src\SDL_Handler.h">
       <Filter>src\rendering</Filter>
     </ClInclude>
+    <ClInclude Include="src\BlackjackAI.h">
+      <Filter>src\blackjack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Blackjack.h">
+      <Filter>src\blackjack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Card.h">
+      <Filter>src\blackjack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Deck.h">
+      <Filter>src\blackjack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Hand.h">
+      <Filter>src\blackjack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MouseHandler.h">
+      <Filter>src\gamedev</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Text_Renderer.h">
+      <Filter>src\rendering</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\playerSpriteSheet.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\background.jpg">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\Blackjack_Screen.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\cardSpriteSheet.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\chipSpriteSheet.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\DealerTurn.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\dialoguebox2.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\elevator ui.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\finalfloor00.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\floor 001.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\pause screen.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\PlayerTurn.png">
+      <Filter>res</Filter>
+    </Image>
+    <Image Include="res\spritesheet.png">
       <Filter>res</Filter>
     </Image>
   </ItemGroup>
@@ -96,5 +177,19 @@
     <CopyFileToFolders Include="..\includes\SDL2_image-2.6.3\lib\x64\SDL2_image.dll">
       <Filter>DLLs\x64</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_ttf-2.22.0\lib\x64\SDL2_ttf.dll">
+      <Filter>DLLs\x64</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\includes\SDL2_ttf-2.22.0\lib\x86\SDL2_ttf.dll">
+      <Filter>DLLs\x86</Filter>
+    </CopyFileToFolders>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Game_Screen.psd">
+      <Filter>res</Filter>
+    </None>
+    <None Include="res\spritesheet.psd">
+      <Filter>res</Filter>
+    </None>
   </ItemGroup>
 </Project>

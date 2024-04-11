@@ -1,158 +1,208 @@
 #include "KeyboardHandler.h"
 #include "SDL_Handler.h"
 #include <iostream>
-#include <algorithm>
-
 KeyboardHandler::KeyboardHandler(SDL_Handler* handler)
-	:m_handler(*handler), backgroundSpeedX(0), backgroundSpeedY(0), playerSpeedX(0), playerSpeedY(0),
-    up(false), down(false), left(false), right(false),
-    upRight(false), upLeft(false), downRight(false), downLeft(false), interact(false),
-    screenCenterX(0), screenCenterY(0), playerCenteredX(true), playerCenteredY(true), mapCenterX(0), mapCenterY(0),
-    backgroundX(-500.0f), backgroundY(-345.0f), playerX(0), playerY(0)
-{
-
-}
-
-KeyboardHandler::~KeyboardHandler()
+	:m_handler(*handler),
+	KeyStates(SDL_GetKeyboardState(NULL)), DirectionalKeyPressed(false), W_key(false), A_key(false), S_key(false), D_key(false), E_key(false), ESC_key(false),
+	BackgroundSpeedX(0), BackgroundSpeedY(0), BackgroundX(-1920), BackgroundY(-1080),
+	RightLimitReached(false), LeftLimitReached(false), TopLimitReached(false), BottomLimitReached(false)
 {
 }
 
-void KeyboardHandler::updateKeyboardState()
+void KeyboardHandler::DirectionalKey(int& playerDirection)
 {
-    const Uint8* keyState = SDL_GetKeyboardState(NULL);
-    
-    // Checking for movement inputs
-    up = keyState[SDL_SCANCODE_W];
-    down = keyState[SDL_SCANCODE_S];
-    left = keyState[SDL_SCANCODE_A];
-    right = keyState[SDL_SCANCODE_D];
-
-    // Checking for interaction inputs
-    interact = keyState[SDL_SCANCODE_E];
-
-    // Check for diagonals
-    upLeft = up && left;
-    upRight = up && right;
-    downLeft = down && left;
-    downRight = down && right;
+	if (W_key) {
+		playerDirection = 4;
+		BackgroundSpeedY += 8;
+	}
+	if (A_key) {
+		playerDirection = 2;
+		BackgroundSpeedX += 8;
+	}
+	if (S_key) {
+		playerDirection = 1;
+		BackgroundSpeedY -= 8;
+	}
+	if (D_key) {
+		playerDirection = 3;
+		BackgroundSpeedX -= 8;
+	}
+	CalculateCustomDiagonals(playerDirection);
 }
 
-void KeyboardHandler::updateBackground(int& playerDirection)
+void KeyboardHandler::MoveBackgroundX(int& ScreenX, int& TrueX, int& ScreenWidth, int playerWidth)
 {
-    // checking the keyboards state and moving background based off WASD input and
-    if (upLeft)
-    {
+	// X axis movement
+	if ((!(LeftLimitReached || RightLimitReached)) && (ScreenX == (ScreenWidth / 2) - (playerWidth / 2)))
+	{
+		BackgroundX += BackgroundSpeedX;
+		TrueX -= BackgroundSpeedX / 2;
+	}
+	else {
+		ScreenX -= BackgroundSpeedX;
+		TrueX -= BackgroundSpeedX / 2;
+	}
+
+	// recentering X axis if it gets off
+	if ((BackgroundX < -(ScreenWidth / 2)) && (ScreenX < (ScreenWidth / 2) - (playerWidth / 2)))
+	{
+		ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
+		std::cout << "recentered\n";
+	}
+	else if ((BackgroundX > -(ScreenWidth / 2)) && (ScreenX > (ScreenWidth / 2) - (playerWidth / 2))) {
+		ScreenX = (ScreenWidth / 2) - (playerWidth / 2);
+		std::cout << "recentered\n";
+	}
+}
+
+void KeyboardHandler::MoveBackgroundY(int& ScreenY, int& TrueY, int& ScreenHeight, int playerHeight)
+{
+	// Y axis movement
+	if ((!(TopLimitReached || BottomLimitReached)) && (ScreenY == (ScreenHeight / 2) - (playerHeight / 2)))
+	{
+		BackgroundY += BackgroundSpeedY;
+		TrueY -= BackgroundSpeedY / 2;
+	}
+	else {
+		ScreenY -= BackgroundSpeedY;
+		TrueY -= BackgroundSpeedY / 2;
+	}
+
+	// recentering Y axis if it gets off
+	if ((BackgroundY < -(ScreenHeight / 2)) && (ScreenY < (ScreenHeight / 2) - (playerHeight / 2)))
+	{
+		ScreenY = (ScreenHeight / 2) - (playerHeight / 2);
+	}
+	else if ((BackgroundY > -(ScreenHeight / 2)) && (ScreenY > (ScreenHeight / 2) - (playerHeight / 2))) {
+		ScreenY = (ScreenHeight / 2) - (playerHeight / 2);
+	}
+}
+
+void KeyboardHandler::UpdatePlayerAnimation(int& consecutiveFramesHeld, int& playerState)
+{
+	if (BackgroundSpeedX != 0 || BackgroundSpeedY != 0) {
+		consecutiveFramesHeld++;
+	}
+	else {
+		consecutiveFramesHeld = 0;
+		playerState = 1;
+	}
+
+	if (((consecutiveFramesHeld != 0) && ((consecutiveFramesHeld % 9) == 0)) || (consecutiveFramesHeld == 3)) {
+		if (playerState < 4) {
+			playerState++;
+		}
+		else {
+			playerState = 1;
+		}
+	}
+}
+
+void KeyboardHandler::HandleEdgeCaseDirections(int& playerDirection)
+{
+	if (W_key && A_key && S_key && !D_key) //Moving left, top and bottom cancel
+	{
+		playerDirection = 2;
+	}
+	else if (W_key && A_key && S_key && D_key) //All keys pressed, face forward
+	{
+		playerDirection = 1;
+	}
+	else if (W_key && A_key && !S_key && D_key) //Moving up, left and right cancel
+	{
+		playerDirection = 4;
+	}
+	else if (!W_key && A_key && S_key && D_key) //Moving down, left and right cancel
+	{
+		playerDirection = 1;
+	}
+	else if (!W_key && A_key && !S_key && D_key) //left and right cancel, face forward
+	{
+		playerDirection = 1;
+	}
+}
+
+void KeyboardHandler::ResetBackgroundSpeed()
+{
+	BackgroundSpeedX = 0;
+	BackgroundSpeedY = 0;
+}
+
+void KeyboardHandler::UpdateKeyStates()
+{
+	KeyStates = SDL_GetKeyboardState(NULL);
+	W_key = KeyStates[SDL_SCANCODE_W];
+	A_key = KeyStates[SDL_SCANCODE_A];
+	S_key = KeyStates[SDL_SCANCODE_S];
+	D_key = KeyStates[SDL_SCANCODE_D];
+	E_key = KeyStates[SDL_SCANCODE_E];
+	ESC_key = KeyStates[SDL_SCANCODE_ESCAPE];
+	DirectionalKeyPressed = W_key || A_key || S_key || D_key;
+}
+
+void KeyboardHandler::CalculateCustomDiagonals(int& playerDirection)
+{
+	if (BackgroundSpeedX > 0 && BackgroundSpeedY > 0)
+	{
 		playerDirection = 7;
-        backgroundSpeedX = 5;
-		backgroundSpeedY = 2.5;
+		BackgroundSpeedX = 8;
+		BackgroundSpeedY = 4;
 	}
-    else if (upRight)
-    {
-        playerDirection = 8;
-        backgroundSpeedX = -5;
-        backgroundSpeedY = 2.5;
+	else if (BackgroundSpeedX < 0 && BackgroundSpeedY > 0)
+	{
+		playerDirection = 8;
+		BackgroundSpeedX = -8;
+		BackgroundSpeedY = 4;
 	}
-    else if (downLeft)
-    {
-        playerDirection = 6;
-        backgroundSpeedX = 5;
-		backgroundSpeedY = -2.5;
+	else if (BackgroundSpeedX > 0 && BackgroundSpeedY < 0)
+	{
+		playerDirection = 6;
+		BackgroundSpeedX = 8;
+		BackgroundSpeedY = -4;
 	}
-    else if (downRight)
-    {
-        playerDirection = 5;
-        backgroundSpeedX = -5;
-		backgroundSpeedY = -2.5;
+	else if (BackgroundSpeedX < 0 && BackgroundSpeedY < 0)
+	{
+		playerDirection = 5;
+		BackgroundSpeedX = -8;
+		BackgroundSpeedY = -4;
 	}
-    else if (up)
-    {
-        playerDirection = 4;
-        backgroundSpeedY = 5;
-        backgroundSpeedX = 0;
-	}
-    else if (down)
-    {
-        playerDirection = 1;
-        backgroundSpeedY = -5;
-        backgroundSpeedX = 0;
-           
-	}
-    else if (left)
-    {
-        playerDirection = 2;
-		backgroundSpeedX = 5;
-        backgroundSpeedY = 0;
-	}
-    else if (right)
-    {
-        playerDirection = 3;
-        backgroundSpeedX = -5;
-        backgroundSpeedY = 0;
-	}
-    else
-    {
-        backgroundSpeedX = 0;
-		backgroundSpeedY = 0;
-	}
-    // Move background, and if it will clip the edge of the map ClampBackgroundPosition will correct it.
-    backgroundX += backgroundSpeedX;
-    backgroundY += backgroundSpeedY;
-
-    // Move the center of the map
-    mapCenterX += backgroundSpeedX;
-    mapCenterY += backgroundSpeedY;
-
-}  
-
-void KeyboardHandler::ClampBackgroundPosition() {
-    // Calculate the valid range for the background and
-    // Ensures the background's position stays within the valid range
-    
-    float tempX = backgroundX;
-    float tempY = backgroundY;
-
-    backgroundX = std::max(minX, std::min(backgroundX, maxX));
-    backgroundY = std::max(minY, std::min(backgroundY, maxY));
-    // If the background's position is out of range, move the player instead of the background. Also won't
-    // move the background if the player isn't centered yet
-    if (playerCenteredX) {
-        if (tempX != backgroundX) {
-            playerSpeedX = -backgroundSpeedX;
-            playerCenteredX = false;
-        }
-    }
-    else {
-        if (!inRange(screenCenterX - 2.5, screenCenterX + 2.5, playerX)) {
-			playerSpeedX = -backgroundSpeedX;
-            backgroundX -= backgroundSpeedX;
-		}
-        else {
-			playerSpeedX = 0;
-			playerCenteredX = true;
-		}
-        
-	}
-    if (playerCenteredY) {
-		if (tempY != backgroundY) {
-			playerSpeedY = -backgroundSpeedY;
-			playerCenteredY = false;
-		}
-	}
-    else {
-        if (!inRange(screenCenterY-2.5, screenCenterY+2.5, playerY)) {
-            playerSpeedY = -backgroundSpeedY;
-            backgroundY -= backgroundSpeedY;
-        }
-        else {
-            playerSpeedY = 0;
-            playerCenteredY = true;
-        }   
-    }
-    playerX += playerSpeedX;
-    playerY += playerSpeedY;
 }
 
-bool KeyboardHandler::inRange(unsigned low, unsigned high, unsigned x)
+void KeyboardHandler::CheckBackgroundLimits()
 {
-    return  ((x - low) <= (high - low));
+	//right border
+	if (-m_handler.screenWidth > (BackgroundX + BackgroundSpeedX))
+	{
+		RightLimitReached = true;
+	}
+	else {
+		RightLimitReached = false;
+	}
+
+	//left border
+	if (0 < (BackgroundX + BackgroundSpeedX))
+	{
+		LeftLimitReached = true;
+	}
+	else {
+		LeftLimitReached = false;
+	}
+
+	//bottom border
+	if (-m_handler.screenHeight > (BackgroundY + BackgroundSpeedY))
+	{
+		BottomLimitReached = true;
+	}
+	else {
+		BottomLimitReached = false;
+	}
+
+	//top border
+	if (0 < (BackgroundY + BackgroundSpeedY))
+	{
+		TopLimitReached = true;
+	}
+	else {
+		TopLimitReached = false;
+	}
 }
