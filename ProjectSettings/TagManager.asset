@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - Opponent
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - Exterior
+  - Water
+  - UI
+  - Floor 0
+  - Floor 1
+  - Floor 2
+  - Floor 3
+  - Floor 4
+  - Floor 5
+  - Start Menu
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
